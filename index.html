@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GH Navigator - Cyfinoid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sen:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Cyfinoid Brand Colors - Light Mode */
+            --bg-primary: #fafafa;
+            --bg-secondary: #121212;
+            --text-primary: #1e1e1e;
+            --text-secondary: #8a8f98;
+            --text-accent: #50c878;
+            --color-yellow: #fdcb52;
+            --color-red: #d63c53;
+            --color-blue: #466fe0;
+            --color-green: #7fd1b9;
+            --color-dirty-yellow: #b6a189;
+            
+            /* Component Colors - Light Mode */
+            --card-bg: #ffffff;
+            --border-color: #e1e5e9;
+            --input-bg: #ffffff;
+            --button-primary: linear-gradient(135deg, #50c878 0%, #7fd1b9 100%);
+            --button-secondary: linear-gradient(135deg, #466fe0 0%, #364fc7 100%);
+            --button-tertiary: linear-gradient(135deg, #8a8f98 0%, #6c757d 100%);
+            --success-bg: #d4f4dd;
+            --success-text: #0d5016;
+            --error-bg: #fde8eb;
+            --error-text: #721c24;
+            --warning-bg: #fff8e1;
+            --warning-text: #8b5a00;
+            --progress-bg: #f8f9fa;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --hover-bg: #f5f5f5;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode Colors */
+            --bg-primary: #121212;
+            --bg-secondary: #fafafa;
+            --text-primary: #50c878;
+            --text-secondary: #8a8f98;
+            --text-accent: #7fd1b9;
+            
+            /* Component Colors - Dark Mode */
+            --card-bg: #1e1e1e;
+            --border-color: #333333;
+            --input-bg: #2a2a2a;
+            --button-primary: linear-gradient(135deg, #50c878 0%, #7fd1b9 100%);
+            --button-secondary: linear-gradient(135deg, #466fe0 0%, #364fc7 100%);
+            --button-tertiary: linear-gradient(135deg, #8a8f98 0%, #6c757d 100%);
+            --success-bg: #1a3d1f;
+            --success-text: #7fd1b9;
+            --error-bg: #3d1a1f;
+            --error-text: #ff8a9b;
+            --warning-bg: #3d3a1a;
+            --warning-text: #fdcb52;
+            --progress-bg: #2a2a2a;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --hover-bg: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-accent);
+        }
+
+        .token-input-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .token-input {
+            width: 350px;
+            padding: 10px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: border-color 0.3s ease;
+        }
+
+        .token-input:focus {
+            outline: none;
+            border-color: var(--text-accent);
+            box-shadow: 0 0 0 3px rgba(80, 200, 120, 0.1);
+        }
+
+        .connect-btn {
+            background: var(--button-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .connect-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(80, 200, 120, 0.3);
+        }
+
+        .connect-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .bulk-checks-btn {
+            background: var(--button-secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .bulk-checks-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(70, 111, 224, 0.3);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .rate-limit-info {
+            background: var(--progress-bg);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+        }
+
+        .theme-toggle {
+            background: var(--button-tertiary);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--progress-bg);
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .repo-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .repo-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .org-section {
+            margin-bottom: 24px;
+        }
+
+        .org-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--progress-bg);
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .org-header:hover {
+            background: var(--hover-bg);
+        }
+
+        .org-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        .org-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+            background: var(--card-bg);
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .org-toggle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            transition: transform 0.2s ease;
+        }
+
+        .org-toggle.expanded {
+            transform: rotate(90deg);
+        }
+
+        .repo-items {
+            display: none;
+            padding-left: 12px;
+        }
+
+        .repo-items.expanded {
+            display: block;
+        }
+
+        .repo-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .repo-item:hover {
+            background: var(--hover-bg);
+            border-left-color: var(--text-accent);
+        }
+
+        .repo-item.active {
+            background: var(--success-bg);
+            border-left-color: var(--text-accent);
+        }
+
+        .repo-icon {
+            font-size: 16px;
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .repo-name {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .repo-private {
+            font-size: 12px;
+            color: var(--color-yellow);
+            background: var(--warning-bg);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            padding-bottom: 60px; /* Space for footer */
+        }
+
+        .breadcrumb {
+            padding: 16px 24px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .breadcrumb-item {
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--text-accent);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .breadcrumb-separator {
+            color: var(--text-secondary);
+        }
+
+        .file-browser {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+        }
+
+        .file-list {
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .file-icon {
+            font-size: 18px;
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .file-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .file-size {
+            font-size: 14px;
+            color: var(--text-secondary);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--text-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            max-width: 400px;
+        }
+
+        .error-message {
+            background: var(--error-bg);
+            color: var(--error-text);
+            padding: 16px 20px;
+            margin: 16px 24px;
+            border-radius: 8px;
+            border-left: 4px solid var(--color-red);
+        }
+
+        .file-viewer {
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin: 20px 24px;
+            overflow: hidden;
+        }
+
+        .file-viewer-header {
+            background: var(--progress-bg);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-viewer-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .file-viewer-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-viewer-btn {
+            background: var(--button-secondary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .file-viewer-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .file-content {
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 300px;
+            }
+            
+            .token-input {
+                width: 250px;
+            }
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .footer-left {
+            color: var(--text-secondary);
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .footer-link {
+            color: var(--text-accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--color-blue);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px 20px;
+            }
+            
+            .header-left,
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .token-input {
+                width: 200px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-width: 300px;
+                position: absolute;
+                left: -100%;
+                top: 0;
+                height: 100%;
+                z-index: 999;
+                transition: left 0.3s ease;
+            }
+            
+            .sidebar.mobile-open {
+                left: 0;
+            }
+
+            .footer {
+                flex-direction: column;
+                gap: 8px;
+                padding: 12px 16px;
+                text-align: center;
+            }
+
+            .footer-right {
+                gap: 12px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-left">
+                <h1>🗂️ GH Navigator</h1>
+                <div class="token-input-container">
+                    <input type="text" 
+                           class="token-input" 
+                           id="github-token" 
+                           placeholder="Enter your GitHub token (ghp_...)"
+                           autocomplete="off">
+                    <button class="connect-btn" onclick="connectToGitHub()" id="connect-btn">
+                        Connect
+                    </button>
+                    <a href="ghcreds.html" class="bulk-checks-btn" target="_blank">
+                        Bulk Checks
+                    </a>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="rate-limit-info" id="rate-limit-info">
+                    API: --/-- | Reset: --:--
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">
+                    🌙 Dark
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">Repositories</div>
+                    <div class="repo-count" id="repo-count">Select a token to view repositories</div>
+                </div>
+                <div class="repo-list" id="repo-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔑</div>
+                        <div class="empty-state-title">No Token Connected</div>
+                        <div class="empty-state-text">Enter your GitHub token above to browse repositories</div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <nav class="breadcrumb" id="breadcrumb">
+                    <span class="breadcrumb-item active">Select a repository</span>
+                </nav>
+                
+                <div class="file-browser" id="file-browser">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📁</div>
+                        <div class="empty-state-title">Welcome to GH Navigator</div>
+                        <div class="empty-state-text">Connect with your GitHub token and select a repository to start browsing files</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-left">
+                © 2025 <a href="https://cyfinoid.com" class="footer-link" target="_blank" rel="noopener noreferrer">Cyfinoid Research</a>
+            </div>
+            <div class="footer-right">
+                <a href="https://github.com/cyfinoid/ghnavigator" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="https://cyfinoid.com/trainings/#upcoming-trainings" class="footer-link" target="_blank" rel="noopener noreferrer">Trainings</a>
+                <a href="https://cyfinoid.com/opensource-by-cyfinoid/" class="footer-link" target="_blank" rel="noopener noreferrer">Open Source by Cyfinoid</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // GitHub API wrapper class
+        class GHNavigator {
+            constructor() {
+                this.token = null;
+                this.baseUrl = 'https://api.github.com';
+                this.rateLimitRemaining = 5000;
+                this.rateLimitReset = null;
+                this.currentRepo = null;
+                this.currentPath = '';
+                this.repositories = [];
+                this.organizations = [];
+            }
+
+            setToken(token) {
+                this.token = token;
+            }
+
+            async makeRequest(endpoint) {
+                if (!this.token) {
+                    throw new Error('No GitHub token provided');
+                }
+
+                const headers = {
+                    'Authorization': `token ${this.token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'GHNavigator/1.0'
+                };
+
+                try {
+                    const response = await fetch(`${this.baseUrl}${endpoint}`, { headers });
+                    
+                    // Update rate limit info
+                    this.rateLimitRemaining = parseInt(response.headers.get('X-RateLimit-Remaining')) || 0;
+                    this.rateLimitReset = parseInt(response.headers.get('X-RateLimit-Reset')) || null;
+                    this.updateRateLimitDisplay();
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    throw error;
+                }
+            }
+
+            updateRateLimitDisplay() {
+                const rateLimitInfo = document.getElementById('rate-limit-info');
+                const resetTime = this.rateLimitReset ? 
+                    new Date(this.rateLimitReset * 1000).toLocaleTimeString() : '--:--';
+                
+                rateLimitInfo.textContent = `API: ${this.rateLimitRemaining}/5000 | Reset: ${resetTime}`;
+                
+                // Change color based on remaining calls
+                if (this.rateLimitRemaining < 100) {
+                    rateLimitInfo.style.color = 'var(--color-red)';
+                } else if (this.rateLimitRemaining < 500) {
+                    rateLimitInfo.style.color = 'var(--color-yellow)';
+                } else {
+                    rateLimitInfo.style.color = 'var(--text-primary)';
+                }
+            }
+
+            async validateToken() {
+                try {
+                    const user = await this.makeRequest('/user');
+                    return { valid: true, user };
+                } catch (error) {
+                    return { valid: false, error: error.message };
+                }
+            }
+
+            async loadRepositories() {
+                try {
+                    // Get user repositories (this is the critical part)
+                    const userRepos = await this.getAllRepositories('/user/repos');
+                    
+                    // Try to get user organizations, but don't fail if this doesn't work
+                    try {
+                        const orgs = await this.makeRequest('/user/orgs');
+                        this.organizations = orgs;
+                    } catch (orgError) {
+                        console.warn('Could not fetch organizations:', orgError.message);
+                        this.organizations = [];
+                        // Show a non-blocking warning
+                        this.showNonBlockingWarning('Unable to fetch organizations, but repositories are still available');
+                    }
+
+                    // Group repositories by owner
+                    const reposByOwner = {};
+                    
+                    userRepos.forEach(repo => {
+                        const owner = repo.owner.login;
+                        if (!reposByOwner[owner]) {
+                            reposByOwner[owner] = [];
+                        }
+                        reposByOwner[owner].push(repo);
+                    });
+
+                    this.repositories = reposByOwner;
+                    return reposByOwner;
+                } catch (error) {
+                    // Only throw if we can't get repositories at all
+                    throw error;
+                }
+            }
+
+            showNonBlockingWarning(message) {
+                // Create a temporary warning that doesn't block the UI
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'non-blocking-warning';
+                warningDiv.innerHTML = `⚠️ ${message}`;
+                warningDiv.style.cssText = `
+                    position: fixed;
+                    top: 80px;
+                    right: 20px;
+                    background: var(--warning-bg);
+                    color: var(--warning-text);
+                    padding: 12px 16px;
+                    border-radius: 8px;
+                    border-left: 4px solid var(--color-yellow);
+                    box-shadow: var(--shadow);
+                    z-index: 9999;
+                    max-width: 300px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                `;
+                
+                document.body.appendChild(warningDiv);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    warningDiv.style.opacity = '0';
+                    warningDiv.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (document.body.contains(warningDiv)) {
+                            document.body.removeChild(warningDiv);
+                        }
+                    }, 300);
+                }, 5000);
+            }
+
+            async getAllRepositories(endpoint) {
+                let allRepos = [];
+                let page = 1;
+                
+                while (page <= 10) { // Limit to prevent excessive API calls
+                    const repos = await this.makeRequest(`${endpoint}?per_page=100&page=${page}`);
+                    if (repos.length === 0) break;
+                    
+                    allRepos = allRepos.concat(repos);
+                    if (repos.length < 100) break;
+                    page++;
+                }
+                
+                return allRepos;
+            }
+
+            async getRepositoryContents(owner, repo, path = '') {
+                try {
+                    const endpoint = `/repos/${owner}/${repo}/contents/${path}`;
+                    return await this.makeRequest(endpoint);
+                } catch (error) {
+                    throw error;
+                }
+            }
+
+            async getFileContent(owner, repo, path) {
+                try {
+                    const content = await this.makeRequest(`/repos/${owner}/${repo}/contents/${path}`);
+                    if (content.content) {
+                        // Decode base64 content
+                        return atob(content.content.replace(/\s/g, ''));
+                    }
+                    return 'Unable to decode file content';
+                } catch (error) {
+                    throw error;
+                }
+            }
+        }
+
+        // Global navigator instance
+        const navigator = new GHNavigator();
+        let currentUser = null;
+
+        // Theme management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('ghnavigator-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeToggle(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('ghnavigator-theme', newTheme);
+            updateThemeToggle(newTheme);
+        }
+
+        function updateThemeToggle(theme) {
+            const toggleButton = document.getElementById('theme-toggle');
+            if (theme === 'dark') {
+                toggleButton.innerHTML = '☀️ Light';
+            } else {
+                toggleButton.innerHTML = '🌙 Dark';
+            }
+        }
+
+        // Connect to GitHub
+        async function connectToGitHub() {
+            const tokenInput = document.getElementById('github-token');
+            const connectBtn = document.getElementById('connect-btn');
+            const token = tokenInput.value.trim();
+
+            if (!token) {
+                showError('Please enter a GitHub token');
+                return;
+            }
+
+            connectBtn.disabled = true;
+            connectBtn.textContent = 'Connecting...';
+
+            try {
+                navigator.setToken(token);
+                
+                // Validate token
+                const validation = await navigator.validateToken();
+                if (!validation.valid) {
+                    throw new Error(validation.error);
+                }
+
+                currentUser = validation.user;
+                
+                // Load repositories
+                showLoading('Loading repositories...');
+                const repositories = await navigator.loadRepositories();
+                
+                // Update UI
+                displayRepositories(repositories);
+                updateRepoCount();
+                
+                connectBtn.textContent = 'Connected ✓';
+                connectBtn.style.background = 'var(--button-primary)';
+                
+                // Note: Token is kept only in memory for maximum security
+                // No persistent storage to minimize security risks
+                
+            } catch (error) {
+                showError(`Connection failed: ${error.message}`);
+                connectBtn.disabled = false;
+                connectBtn.textContent = 'Connect';
+            }
+        }
+
+        // Display repositories in sidebar
+        function displayRepositories(repositories) {
+            const repoList = document.getElementById('repo-list');
+            let html = '';
+
+            Object.keys(repositories).forEach(owner => {
+                const repos = repositories[owner];
+                const isUser = currentUser && owner === currentUser.login;
+                const orgIcon = isUser ? '👤' : '🏢';
+                
+                html += `
+                    <div class="org-section">
+                        <div class="org-header" onclick="toggleOrgSection('${owner}')">
+                            <div class="org-name">
+                                ${orgIcon} ${owner}
+                                ${isUser ? ' (You)' : ''}
+                            </div>
+                            <div class="org-count">${repos.length}</div>
+                            <div class="org-toggle" id="toggle-${owner}">▶</div>
+                        </div>
+                        <div class="repo-items" id="repos-${owner}">
+                `;
+
+                repos.forEach(repo => {
+                    const repoIcon = repo.private ? '🔒' : '📁';
+                    html += `
+                        <div class="repo-item" onclick="selectRepository('${repo.owner.login}', '${repo.name}')">
+                            <span class="repo-icon">${repoIcon}</span>
+                            <span class="repo-name">${repo.name}</span>
+                            ${repo.private ? '<span class="repo-private">Private</span>' : ''}
+                        </div>
+                    `;
+                });
+
+                html += '</div></div>';
+            });
+
+            repoList.innerHTML = html;
+            
+            // Auto-expand user's repos
+            if (currentUser) {
+                toggleOrgSection(currentUser.login);
+            }
+        }
+
+        // Toggle organization section
+        function toggleOrgSection(owner) {
+            const repoItems = document.getElementById(`repos-${owner}`);
+            const toggle = document.getElementById(`toggle-${owner}`);
+            
+            if (repoItems.classList.contains('expanded')) {
+                repoItems.classList.remove('expanded');
+                toggle.classList.remove('expanded');
+            } else {
+                repoItems.classList.add('expanded');
+                toggle.classList.add('expanded');
+            }
+        }
+
+        // Select repository
+        async function selectRepository(owner, repo) {
+            // Update active state
+            document.querySelectorAll('.repo-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.repo-item').classList.add('active');
+
+            navigator.currentRepo = { owner, repo };
+            navigator.currentPath = '';
+
+            updateBreadcrumb([{ name: repo, path: '' }]);
+            
+            try {
+                showLoading('Loading repository contents...');
+                const contents = await navigator.getRepositoryContents(owner, repo);
+                displayFileList(contents);
+            } catch (error) {
+                showError(`Failed to load repository: ${error.message}`);
+            }
+        }
+
+        // Display file list
+        function displayFileList(contents) {
+            const fileBrowser = document.getElementById('file-browser');
+            
+            if (!contents || contents.length === 0) {
+                fileBrowser.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <div class="empty-state-title">Empty Repository</div>
+                        <div class="empty-state-text">This repository doesn't contain any files</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="file-list">';
+
+            // Add back button if not in root
+            if (navigator.currentPath) {
+                html += `
+                    <div class="file-item" onclick="navigateUp()">
+                        <span class="file-icon">⬅️</span>
+                        <div class="file-info">
+                            <div class="file-name">..</div>
+                            <div class="file-meta">Go back</div>
+                        </div>
+                        <div class="file-size">--</div>
+                    </div>
+                `;
+            }
+
+            // Sort contents: directories first, then files
+            const sorted = contents.sort((a, b) => {
+                if (a.type === 'dir' && b.type !== 'dir') return -1;
+                if (a.type !== 'dir' && b.type === 'dir') return 1;
+                return a.name.localeCompare(b.name);
+            });
+
+            sorted.forEach(item => {
+                const icon = item.type === 'dir' ? '📁' : getFileIcon(item.name);
+                const size = item.type === 'dir' ? '--' : formatFileSize(item.size);
+                const clickHandler = item.type === 'dir' ? 
+                    `navigateToFolder('${item.name}')` : 
+                    `viewFile('${item.name}')`;
+
+                html += `
+                    <div class="file-item" onclick="${clickHandler}">
+                        <span class="file-icon">${icon}</span>
+                        <div class="file-info">
+                            <div class="file-name">${item.name}</div>
+                            <div class="file-meta">${item.type === 'dir' ? 'Directory' : 'File'}</div>
+                        </div>
+                        <div class="file-size">${size}</div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            fileBrowser.innerHTML = html;
+        }
+
+        // Navigate to folder
+        async function navigateToFolder(folderName) {
+            const newPath = navigator.currentPath ? 
+                `${navigator.currentPath}/${folderName}` : folderName;
+            
+            try {
+                showLoading('Loading folder contents...');
+                const contents = await navigator.getRepositoryContents(
+                    navigator.currentRepo.owner, 
+                    navigator.currentRepo.repo, 
+                    newPath
+                );
+                
+                navigator.currentPath = newPath;
+                updateBreadcrumb(getBreadcrumbItems());
+                displayFileList(contents);
+            } catch (error) {
+                showError(`Failed to load folder: ${error.message}`);
+            }
+        }
+
+        // Navigate up one level
+        async function navigateUp() {
+            const pathParts = navigator.currentPath.split('/');
+            pathParts.pop();
+            const newPath = pathParts.join('/');
+            
+            try {
+                showLoading('Loading parent folder...');
+                const contents = await navigator.getRepositoryContents(
+                    navigator.currentRepo.owner, 
+                    navigator.currentRepo.repo, 
+                    newPath
+                );
+                
+                navigator.currentPath = newPath;
+                updateBreadcrumb(getBreadcrumbItems());
+                displayFileList(contents);
+            } catch (error) {
+                showError(`Failed to navigate up: ${error.message}`);
+            }
+        }
+
+        // View file content
+        async function viewFile(fileName) {
+            const filePath = navigator.currentPath ? 
+                `${navigator.currentPath}/${fileName}` : fileName;
+            
+            try {
+                showLoading('Loading file content...');
+                const content = await navigator.getFileContent(
+                    navigator.currentRepo.owner, 
+                    navigator.currentRepo.repo, 
+                    filePath
+                );
+                
+                displayFileViewer(fileName, content);
+            } catch (error) {
+                showError(`Failed to load file: ${error.message}`);
+            }
+        }
+
+        // Display file viewer
+        function displayFileViewer(fileName, content) {
+            const fileBrowser = document.getElementById('file-browser');
+            
+            const html = `
+                <div class="file-viewer">
+                    <div class="file-viewer-header">
+                        <div class="file-viewer-title">📄 ${fileName}</div>
+                        <div class="file-viewer-actions">
+                            <button class="file-viewer-btn" onclick="goBackToFolder()">
+                                ← Back to Files
+                            </button>
+                        </div>
+                    </div>
+                    <div class="file-content">${escapeHtml(content)}</div>
+                </div>
+            `;
+            
+            fileBrowser.innerHTML = html;
+        }
+
+        // Go back to folder view
+        async function goBackToFolder() {
+            try {
+                showLoading('Loading folder contents...');
+                const contents = await navigator.getRepositoryContents(
+                    navigator.currentRepo.owner, 
+                    navigator.currentRepo.repo, 
+                    navigator.currentPath
+                );
+                displayFileList(contents);
+            } catch (error) {
+                showError(`Failed to load folder: ${error.message}`);
+            }
+        }
+
+        // Update breadcrumb navigation
+        function updateBreadcrumb(items) {
+            const breadcrumb = document.getElementById('breadcrumb');
+            let html = '';
+            
+            items.forEach((item, index) => {
+                if (index > 0) {
+                    html += '<span class="breadcrumb-separator">/</span>';
+                }
+                
+                const isActive = index === items.length - 1;
+                const className = isActive ? 'breadcrumb-item active' : 'breadcrumb-item';
+                
+                if (isActive) {
+                    html += `<span class="${className}">${item.name}</span>`;
+                } else {
+                    html += `<span class="${className}" onclick="navigateToBreadcrumb('${item.path}')">${item.name}</span>`;
+                }
+            });
+            
+            breadcrumb.innerHTML = html;
+        }
+
+        // Get breadcrumb items
+        function getBreadcrumbItems() {
+            const items = [{ name: navigator.currentRepo.repo, path: '' }];
+            
+            if (navigator.currentPath) {
+                const pathParts = navigator.currentPath.split('/');
+                let currentPath = '';
+                
+                pathParts.forEach(part => {
+                    currentPath = currentPath ? `${currentPath}/${part}` : part;
+                    items.push({ name: part, path: currentPath });
+                });
+            }
+            
+            return items;
+        }
+
+        // Navigate to breadcrumb item
+        async function navigateToBreadcrumb(path) {
+            try {
+                showLoading('Loading...');
+                const contents = await navigator.getRepositoryContents(
+                    navigator.currentRepo.owner, 
+                    navigator.currentRepo.repo, 
+                    path
+                );
+                
+                navigator.currentPath = path;
+                updateBreadcrumb(getBreadcrumbItems());
+                displayFileList(contents);
+            } catch (error) {
+                showError(`Failed to navigate: ${error.message}`);
+            }
+        }
+
+        // Utility functions
+        function updateRepoCount() {
+            const repoCount = document.getElementById('repo-count');
+            const totalRepos = Object.values(navigator.repositories)
+                .reduce((sum, repos) => sum + repos.length, 0);
+            repoCount.textContent = `${totalRepos} repositories found`;
+        }
+
+        function showLoading(message) {
+            const fileBrowser = document.getElementById('file-browser');
+            fileBrowser.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const fileBrowser = document.getElementById('file-browser');
+            fileBrowser.innerHTML = `<div class="error-message">❌ ${message}</div>`;
+        }
+
+        function getFileIcon(fileName) {
+            const ext = fileName.split('.').pop().toLowerCase();
+            const iconMap = {
+                'js': '🟨',
+                'ts': '🔷',
+                'html': '🟧',
+                'css': '🎨',
+                'json': '📋',
+                'md': '📝',
+                'txt': '📄',
+                'py': '🐍',
+                'java': '☕',
+                'cpp': '⚙️',
+                'c': '⚙️',
+                'php': '🐘',
+                'rb': '💎',
+                'go': '🐹',
+                'rs': '🦀',
+                'yml': '⚙️',
+                'yaml': '⚙️',
+                'xml': '📄',
+                'svg': '🖼️',
+                'png': '🖼️',
+                'jpg': '🖼️',
+                'gif': '🖼️',
+                'pdf': '📕'
+            };
+            return iconMap[ext] || '📄';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Handle Enter key in token input
+        document.getElementById('github-token').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                connectToGitHub();
+            }
+        });
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            
+            // Note: No token auto-loading for security reasons
+            // Users must re-enter token on each session
+        });
+    </script>
+</body>
+</html>

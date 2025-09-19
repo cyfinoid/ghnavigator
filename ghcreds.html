@@ -1,0 +1,3391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GH Token Analyzer - Cyfinoid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sen:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Cyfinoid Brand Colors - Light Mode */
+            --bg-primary: #fafafa;
+            --bg-secondary: #121212;
+            --text-primary: #1e1e1e;
+            --text-secondary: #8a8f98;
+            --text-accent: #50c878;
+            --color-yellow: #fdcb52;
+            --color-red: #d63c53;
+            --color-blue: #466fe0;
+            --color-green: #7fd1b9;
+            --color-dirty-yellow: #b6a189;
+            
+            /* Component Colors - Light Mode */
+            --card-bg: #ffffff;
+            --border-color: #e1e5e9;
+            --input-bg: #ffffff;
+            --button-primary: linear-gradient(135deg, #50c878 0%, #7fd1b9 100%);
+            --button-secondary: linear-gradient(135deg, #466fe0 0%, #364fc7 100%);
+            --button-tertiary: linear-gradient(135deg, #8a8f98 0%, #6c757d 100%);
+            --success-bg: #d4f4dd;
+            --success-text: #0d5016;
+            --error-bg: #fde8eb;
+            --error-text: #721c24;
+            --warning-bg: #fff8e1;
+            --warning-text: #8b5a00;
+            --progress-bg: #f8f9fa;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode Colors */
+            --bg-primary: #121212;
+            --bg-secondary: #fafafa;
+            --text-primary: #50c878;
+            --text-secondary: #8a8f98;
+            --text-accent: #7fd1b9;
+            
+            /* Component Colors - Dark Mode */
+            --card-bg: #1e1e1e;
+            --border-color: #333333;
+            --input-bg: #2a2a2a;
+            --button-primary: linear-gradient(135deg, #50c878 0%, #7fd1b9 100%);
+            --button-secondary: linear-gradient(135deg, #466fe0 0%, #364fc7 100%);
+            --button-tertiary: linear-gradient(135deg, #8a8f98 0%, #6c757d 100%);
+            --success-bg: #1a3d1f;
+            --success-text: #7fd1b9;
+            --error-bg: #3d1a1f;
+            --error-text: #ff8a9b;
+            --warning-bg: #3d3a1a;
+            --warning-text: #fdcb52;
+            --progress-bg: #2a2a2a;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 16px; /* Body text size per brand guidelines */
+            font-weight: 400;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--bg-primary);
+            transition: background-color 0.3s ease;
+        }
+
+        .content-wrapper {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 1000px;
+            margin: 70px auto 60px auto; /* Space for smaller fixed header and footer */
+            overflow: hidden;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .header {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: var(--button-tertiary);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+            color: var(--text-accent);
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .input-section {
+            background: var(--progress-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 16px; /* Body text size per brand guidelines */
+            color: var(--text-primary);
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Sen', sans-serif;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--text-accent);
+            box-shadow: 0 0 0 3px rgba(80, 200, 120, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'Courier New', 'Sen', monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: var(--button-primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px; /* Body text size per brand guidelines */
+            font-weight: 600;
+            font-family: 'Sen', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(80, 200, 120, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(80, 200, 120, 0.3);
+        }
+
+        button:disabled {
+            background: var(--button-tertiary);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        .scan-button {
+            background: var(--button-secondary);
+            box-shadow: 0 2px 8px rgba(70, 111, 224, 0.2);
+        }
+
+        .scan-button:hover {
+            box-shadow: 0 4px 16px rgba(70, 111, 224, 0.3);
+        }
+
+        .clear-button {
+            background: var(--button-tertiary);
+            box-shadow: 0 2px 8px rgba(138, 143, 152, 0.2);
+        }
+
+        .clear-button:hover {
+            box-shadow: 0 4px 16px rgba(138, 143, 152, 0.3);
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .input-with-button input {
+            flex: 1;
+            margin: 0;
+        }
+
+        .analyze-button {
+            background: var(--button-primary);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Sen', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(80, 200, 120, 0.2);
+            white-space: nowrap;
+            min-width: 140px;
+        }
+
+        .analyze-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(80, 200, 120, 0.3);
+        }
+
+        .analyze-button:disabled {
+            background: var(--button-tertiary);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        .results {
+            margin-top: 25px;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .result-header {
+            background: var(--progress-bg);
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 20px; /* Section header size per brand guidelines */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-primary);
+        }
+
+        .result-body {
+            padding: 24px;
+        }
+
+        .status-valid {
+            color: var(--text-accent);
+            font-weight: 600;
+        }
+
+        .status-invalid {
+            color: var(--color-red);
+            font-weight: 600;
+        }
+
+        .status-checking {
+            color: var(--color-yellow);
+            font-weight: 600;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .info-item {
+            background: var(--progress-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--text-accent);
+            transition: background-color 0.3s ease;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px; /* Caption size per brand guidelines */
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .scope-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .scope-tag {
+            background: var(--color-blue);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px; /* Caption size per brand guidelines */
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .scope-tag:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(70, 111, 224, 0.3);
+        }
+
+        .scope-tag.risk-high {
+            background: var(--color-red);
+            color: white;
+        }
+
+        .scope-tag.risk-high:hover {
+            box-shadow: 0 2px 8px rgba(214, 60, 83, 0.3);
+        }
+
+        .scope-tag.risk-medium {
+            background: var(--color-yellow);
+            color: var(--text-primary);
+        }
+
+        .scope-tag.risk-medium:hover {
+            box-shadow: 0 2px 8px rgba(253, 203, 82, 0.3);
+        }
+
+        .scope-tag.risk-low {
+            background: var(--text-accent);
+            color: white;
+        }
+
+        .scope-tag.risk-low:hover {
+            box-shadow: 0 2px 8px rgba(80, 200, 120, 0.3);
+        }
+
+        /* Scope popup modal */
+        .scope-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .scope-modal-content {
+            background: var(--card-bg);
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .scope-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .scope-modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .scope-modal-close {
+            background: var(--button-tertiary);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .scope-modal-close:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+        .scope-modal-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .scope-capabilities {
+            background: var(--progress-bg);
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--text-accent);
+        }
+
+        .scope-capabilities h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .scope-capabilities ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .scope-capabilities li {
+            padding: 8px 0;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scope-capabilities li:before {
+            content: "⚡";
+            color: var(--text-accent);
+        }
+
+        .scope-modal-content.risk-high .scope-capabilities {
+            border-left-color: var(--color-red);
+        }
+
+        .scope-modal-content.risk-high .scope-capabilities li:before {
+            content: "⚠️";
+        }
+
+        .scope-modal-content.risk-medium .scope-capabilities {
+            border-left-color: var(--color-yellow);
+        }
+
+        .scope-modal-content.risk-medium .scope-capabilities li:before {
+            content: "⚡";
+            color: var(--color-yellow);
+        }
+
+        .blocked-operation-warning {
+            background: var(--error-bg);
+            border: 1px solid var(--color-red);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .blocked-operation-text {
+            color: var(--error-text);
+            font-weight: 500;
+        }
+
+        .repo-list {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 20px;
+            background: var(--card-bg);
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .repo-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f3f4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .repo-item:last-child {
+            border-bottom: none;
+        }
+
+        .repo-name {
+            font-weight: 500;
+            color: #0366d6;
+        }
+
+        .repo-link {
+            text-decoration: none;
+            color: #0366d6;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .repo-link:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
+        .repo-name-private {
+            font-weight: 500;
+            color: #586069;
+        }
+
+        .repo-private {
+            background: #fff3cd;
+            color: #856404;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 10px;
+        }
+
+        .repo-public {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 10px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0366d6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: var(--error-bg);
+            color: var(--error-text);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--color-red);
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .warning {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--color-yellow);
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .success {
+            background: var(--success-bg);
+            color: var(--success-text);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--text-accent);
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .progress-container {
+            background: var(--progress-bg);
+            border-radius: 8px;
+            padding: 24px;
+            margin: 20px 0;
+            border-left: 4px solid var(--text-accent);
+            transition: background-color 0.3s ease;
+            position: fixed;
+            top: 65px; /* Below smaller fixed header */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            z-index: 999;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-title {
+            font-weight: 600;
+            font-size: 20px; /* Section header size per brand guidelines */
+            color: var(--text-primary);
+        }
+
+        .progress-counter {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-accent);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--border-color);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--button-primary);
+            transition: width 0.4s ease;
+            border-radius: 5px;
+        }
+
+        .progress-status {
+            font-size: 16px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .current-token {
+            font-family: 'Courier New', monospace;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        /* Headings in result body */
+        .result-body h3 {
+            font-size: 20px; /* Section header size per brand guidelines */
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 24px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer {
+            background: var(--card-bg);
+            padding: 12px 30px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+            border-top: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        [data-theme="dark"] .footer {
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--text-accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .footer-copyright {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                margin: 90px 10px 100px 10px;
+                border-radius: 8px;
+            }
+            
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .header .subtitle {
+                font-size: 14px;
+            }
+            
+            .header .author {
+                font-size: 11px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .input-with-button {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .analyze-button {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+
+            .footer {
+                padding: 10px 20px;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .footer-links {
+                gap: 15px;
+            }
+            
+            .footer-link {
+                font-size: 12px;
+            }
+            
+            .footer-copyright {
+                font-size: 10px;
+            }
+            
+            .progress-container {
+                top: 60px;
+                width: 95%;
+                padding: 20px;
+            }
+        }
+
+        /* Profile Section Styles */
+        .profile-section {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin: 16px 0;
+            padding: 16px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .profile-avatar {
+            flex-shrink: 0;
+        }
+
+        .profile-avatar img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .profile-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .profile-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 100px;
+            flex-shrink: 0;
+        }
+
+        .profile-value {
+            color: var(--text-primary);
+            word-break: break-all;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-section {
+                gap: 12px;
+                padding: 12px;
+            }
+
+            .profile-avatar img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .profile-item {
+                font-size: 13px;
+                gap: 6px;
+            }
+
+            .profile-label {
+                min-width: 80px;
+                font-size: 12px;
+            }
+
+            .profile-value {
+                font-size: 13px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            /* Reset page margins and setup */
+            @page {
+                margin: 1.5in 1in 1.5in 1in; /* top right bottom left */
+                size: A4;
+            }
+
+            /* Print header on each page */
+            @page :first {
+                @top-center {
+                    content: "GH Token Analyzer - Analysis Report";
+                    font-family: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 14pt;
+                    font-weight: 600;
+                    color: #1a1a1a;
+                    border-bottom: 1pt solid #e0e0e0;
+                    padding-bottom: 8pt;
+                    margin-bottom: 16pt;
+                }
+                @bottom-center {
+                    content: "Page " counter(page) " | Generated: " date() " | Cyfinoid Research";
+                    font-family: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 10pt;
+                    color: #666;
+                    border-top: 1pt solid #e0e0e0;
+                    padding-top: 8pt;
+                    margin-top: 16pt;
+                }
+            }
+
+            @page :left {
+                @top-center {
+                    content: "GH Token Analyzer - Analysis Report";
+                    font-family: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 14pt;
+                    font-weight: 600;
+                    color: #1a1a1a;
+                    border-bottom: 1pt solid #e0e0e0;
+                    padding-bottom: 8pt;
+                    margin-bottom: 16pt;
+                }
+                @bottom-center {
+                    content: "Page " counter(page) " | Generated: " date() " | Cyfinoid Research";
+                    font-family: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 10pt;
+                    color: #666;
+                    border-top: 1pt solid #e0e0e0;
+                    padding-top: 8pt;
+                    margin-top: 16pt;
+                }
+            }
+
+            @page :right {
+                @top-center {
+                    content: "GH Token Analyzer - Analysis Report";
+                    font-family: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 14pt;
+                    font-weight: 600;
+                    color: #1a1a1a;
+                    border-bottom: 1pt solid #e0e0e0;
+                    padding-bottom: 8pt;
+                    margin-bottom: 16pt;
+                }
+                @bottom-center {
+                    content: "Page " counter(page) " | Generated: " date() " | Cyfinoid Research";
+                    font-family: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 10pt;
+                    color: #666;
+                    border-top: 1pt solid #e0e0e0;
+                    padding-top: 8pt;
+                    margin-top: 16pt;
+                }
+            }
+
+            /* Hide screen-only elements */
+            .header,
+            .progress-container,
+            .theme-toggle,
+            .input-section,
+            .bulk-scan-section,
+            .error-message {
+                display: none !important;
+            }
+
+            /* Show footer at the end in print */
+            .footer {
+                display: block !important;
+                position: static !important;
+                background: white !important;
+                border-top: 2pt solid #333 !important;
+                border-bottom: none !important;
+                padding: 12pt 0 !important;
+                margin-top: 24pt !important;
+                box-shadow: none !important;
+                page-break-before: avoid;
+                page-break-inside: avoid;
+                text-align: center !important;
+            }
+
+            .footer-copyright {
+                color: #333 !important;
+                font-size: 10pt !important;
+                font-weight: 400 !important;
+                margin-bottom: 8pt !important;
+            }
+
+            .footer-links {
+                display: flex !important;
+                justify-content: center !important;
+                gap: 16pt !important;
+                flex-wrap: wrap !important;
+            }
+
+            .footer-link {
+                color: #333 !important;
+                text-decoration: none !important;
+                font-weight: 500 !important;
+                font-size: 9pt !important;
+            }
+
+            .footer-link:after {
+                content: none !important;
+            }
+
+            /* Body adjustments for print */
+            body {
+                background: white !important;
+                color: #1a1a1a !important;
+                font-size: 11pt;
+                line-height: 1.4;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Container adjustments */
+            .container {
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .content-wrapper {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Results section */
+            #results {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Result cards */
+            .result-card {
+                background: white !important;
+                border: 1pt solid #d0d0d0 !important;
+                border-radius: 4pt !important;
+                margin-bottom: 16pt !important;
+                padding: 12pt !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+            }
+
+            .result-header {
+                border-bottom: 1pt solid #e0e0e0 !important;
+                padding-bottom: 8pt !important;
+                margin-bottom: 12pt !important;
+                font-size: 14pt !important;
+                font-weight: 600 !important;
+                color: #1a1a1a !important;
+            }
+
+            .result-body {
+                color: #333 !important;
+            }
+
+            /* Status indicators */
+            .status-valid {
+                background: #e8f5e8 !important;
+                color: #2d5a2d !important;
+                border: 1pt solid #4caf50 !important;
+                padding: 4pt 8pt !important;
+                border-radius: 3pt !important;
+                font-size: 10pt !important;
+            }
+
+            .status-invalid {
+                background: #ffeaea !important;
+                color: #8b2635 !important;
+                border: 1pt solid #f44336 !important;
+                padding: 4pt 8pt !important;
+                border-radius: 3pt !important;
+                font-size: 10pt !important;
+            }
+
+            /* Headings */
+            h3 {
+                color: #1a1a1a !important;
+                font-size: 13pt !important;
+                font-weight: 600 !important;
+                margin: 16pt 0 8pt 0 !important;
+                page-break-after: avoid;
+            }
+
+            h4 {
+                color: #333 !important;
+                font-size: 12pt !important;
+                font-weight: 600 !important;
+                margin: 12pt 0 6pt 0 !important;
+                page-break-after: avoid;
+            }
+
+            /* Warning boxes */
+            .warning {
+                background: #fff8e1 !important;
+                border: 1pt solid #ffa726 !important;
+                border-left: 3pt solid #ff9800 !important;
+                color: #8b6914 !important;
+                padding: 8pt !important;
+                margin: 8pt 0 !important;
+                border-radius: 3pt !important;
+                font-size: 10pt !important;
+                page-break-inside: avoid;
+            }
+
+            /* Error boxes */
+            .error {
+                background: #ffebee !important;
+                border: 1pt solid #e57373 !important;
+                border-left: 3pt solid #f44336 !important;
+                color: #8b2635 !important;
+                padding: 8pt !important;
+                margin: 8pt 0 !important;
+                border-radius: 3pt !important;
+                font-size: 10pt !important;
+                page-break-inside: avoid;
+            }
+
+            /* Scope tags */
+            .scope-tag {
+                border: 1pt solid #ddd !important;
+                background: #f5f5f5 !important;
+                color: #333 !important;
+                padding: 2pt 6pt !important;
+                margin: 2pt !important;
+                border-radius: 3pt !important;
+                font-size: 9pt !important;
+                display: inline-block !important;
+            }
+
+            .scope-tag.risk-high {
+                background: #ffebee !important;
+                border-color: #f44336 !important;
+                color: #8b2635 !important;
+            }
+
+            .scope-tag.risk-medium {
+                background: #fff8e1 !important;
+                border-color: #ff9800 !important;
+                color: #8b6914 !important;
+            }
+
+            .scope-tag.risk-low {
+                background: #e8f5e8 !important;
+                border-color: #4caf50 !important;
+                color: #2d5a2d !important;
+            }
+
+            /* Repository lists */
+            .repo-list {
+                margin: 8pt 0 !important;
+            }
+
+            .repo-item {
+                border: 1pt solid #e0e0e0 !important;
+                background: white !important;
+                padding: 8pt !important;
+                margin-bottom: 4pt !important;
+                border-radius: 3pt !important;
+                page-break-inside: avoid;
+                color: #333 !important;
+            }
+
+            .repo-link {
+                color: #1976d2 !important;
+                text-decoration: underline !important;
+            }
+
+            .repo-name-private {
+                color: #333 !important;
+                font-weight: 500 !important;
+            }
+
+            .repo-private {
+                background: #ffebee !important;
+                color: #8b2635 !important;
+                border: 1pt solid #f44336 !important;
+                padding: 2pt 6pt !important;
+                border-radius: 3pt !important;
+                font-size: 9pt !important;
+            }
+
+            .repo-public {
+                background: #e8f5e8 !important;
+                color: #2d5a2d !important;
+                border: 1pt solid #4caf50 !important;
+                padding: 2pt 6pt !important;
+                border-radius: 3pt !important;
+                font-size: 9pt !important;
+            }
+
+            /* Tables and structured data */
+            table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+                margin: 8pt 0 !important;
+                font-size: 10pt !important;
+            }
+
+            th, td {
+                border: 1pt solid #ddd !important;
+                padding: 6pt !important;
+                text-align: left !important;
+                color: #333 !important;
+            }
+
+            th {
+                background: #f5f5f5 !important;
+                font-weight: 600 !important;
+            }
+
+            /* Code and monospace text */
+            code, pre, .monospace {
+                font-family: 'Courier New', Courier, monospace !important;
+                font-size: 9pt !important;
+                background: #f8f8f8 !important;
+                border: 1pt solid #e0e0e0 !important;
+                padding: 2pt 4pt !important;
+                border-radius: 2pt !important;
+                color: #333 !important;
+            }
+
+            pre {
+                padding: 8pt !important;
+                margin: 8pt 0 !important;
+                white-space: pre-wrap !important;
+                word-wrap: break-word !important;
+            }
+
+            /* Security issue badges */
+            span[style*="background: var(--error-bg)"] {
+                background: #ffebee !important;
+                color: #8b2635 !important;
+                border: 1pt solid #f44336 !important;
+            }
+
+            span[style*="background: var(--warning-bg)"] {
+                background: #fff8e1 !important;
+                color: #8b6914 !important;
+                border: 1pt solid #ff9800 !important;
+            }
+
+            /* Ensure proper page breaks */
+            .result-card {
+                page-break-before: auto;
+                page-break-after: auto;
+                page-break-inside: avoid;
+            }
+
+            h3 {
+                page-break-before: auto;
+                page-break-after: avoid;
+            }
+
+            .repo-item {
+                page-break-inside: avoid;
+                page-break-before: auto;
+                page-break-after: auto;
+            }
+
+            /* Print-specific utilities */
+            .print-only {
+                display: block !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            /* Adjust font sizes for better readability */
+            body, .result-body {
+                font-size: 11pt !important;
+                line-height: 1.4 !important;
+            }
+
+            /* Remove interactive elements */
+            button, input, select, textarea {
+                display: none !important;
+            }
+
+            /* Modal and overlay elements */
+            .scope-modal, .modal, .overlay {
+                display: none !important;
+            }
+
+            /* Ensure links are visible */
+            a {
+                color: #1976d2 !important;
+                text-decoration: underline !important;
+            }
+
+            a[href]:after {
+                content: " (" attr(href) ")" !important;
+                font-size: 9pt !important;
+                color: #666 !important;
+            }
+
+            /* Profile section print styles */
+            .profile-section {
+                background: white !important;
+                border: 1pt solid #d0d0d0 !important;
+                border-radius: 4pt !important;
+                margin: 8pt 0 !important;
+                padding: 8pt !important;
+                page-break-inside: avoid;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: flex-start !important;
+                gap: 12pt !important;
+            }
+
+            .profile-avatar {
+                flex-shrink: 0 !important;
+            }
+
+            .profile-avatar img {
+                width: 40pt !important;
+                height: 40pt !important;
+                border: 1pt solid #d0d0d0 !important;
+                border-radius: 50% !important;
+            }
+
+            .profile-info {
+                flex: 1 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 2pt !important;
+            }
+
+            .profile-item {
+                display: flex !important;
+                align-items: center !important;
+                gap: 6pt !important;
+                font-size: 9pt !important;
+                line-height: 1.2 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+
+            .profile-label {
+                font-weight: 600 !important;
+                color: #333 !important;
+                min-width: 60pt !important;
+                flex-shrink: 0 !important;
+            }
+
+            .profile-value {
+                color: #1a1a1a !important;
+                word-break: break-all !important;
+                flex: 1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 GH Token Analyzer</h1>
+            <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">
+                🌙 Dark
+            </button>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="main-content">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="token-input">GitHub Personal Access Token</label>
+                        <div class="input-with-button">
+                            <input type="text" id="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+                            <button onclick="analyzeToken()" class="analyze-button">Analyze Token</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="text-scan">Or scan text for tokens</label>
+                        <textarea id="text-scan" placeholder="Paste text content to scan for GH tokens..."></textarea>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="scan-button" onclick="scanText()">Scan Text</button>
+                        <button class="clear-button" onclick="clearResults()">Clear Results</button>
+                    </div>
+                </div>
+
+                <div id="results" class="results"></div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-copyright">
+                © 2025 Cyfinoid Research • Built with ❤️ for the security community
+            </div>
+            <div class="footer-links">
+                <a href="https://cyfinoid.com" class="footer-link" target="_blank" rel="noopener noreferrer">Cyfinoid Research</a>
+                <a href="https://github.com/cyfinoid/ghnavigator" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+                <a href="https://cyfinoid.com/trainings/#upcoming-trainings" class="footer-link" target="_blank" rel="noopener noreferrer">Training Programs</a>
+                <a href="https://cyfinoid.com/opensource-by-cyfinoid/" class="footer-link" target="_blank" rel="noopener noreferrer">Open Source Projects</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scope Details Modal -->
+    <div id="scope-modal" class="scope-modal">
+        <div class="scope-modal-content" id="scope-modal-content">
+            <div class="scope-modal-header">
+                <div class="scope-modal-title" id="scope-modal-title">
+                    <!-- Title will be populated by JavaScript -->
+                </div>
+                <button class="scope-modal-close" onclick="closeScopeModal()">&times;</button>
+            </div>
+            <div class="scope-modal-description" id="scope-modal-description">
+                <!-- Description will be populated by JavaScript -->
+            </div>
+            <div class="scope-capabilities" id="scope-modal-capabilities">
+                <!-- Capabilities will be populated by JavaScript -->
+            </div>
+            <div id="scope-modal-warning" style="display: none;">
+                <!-- Warning will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class GitHubTokenAnalyzer {
+            constructor() {
+                this.baseUrl = 'https://api.github.com';
+                this.rateLimitRemaining = 60; // Start with anonymous rate limit
+                this.rateLimitReset = null;
+            }
+
+            // Token pattern detection
+            detectGitHubTokens(text) {
+                const patterns = [
+                    /ghp_[a-zA-Z0-9]{36}/g,          // Classic PAT
+                    /gho_[a-zA-Z0-9]{36}/g,          // OAuth token
+                    /ghu_[a-zA-Z0-9]{36}/g,          // User token
+                    /ghs_[a-zA-Z0-9]{36}/g,          // Server token
+                    /ghr_[a-zA-Z0-9]{36}/g,          // Refresh token
+                    /github_pat_[a-zA-Z0-9_]{82}/g   // Fine-grained PAT
+                ];
+
+                const tokens = [];
+                patterns.forEach(pattern => {
+                    const matches = text.match(pattern);
+                    if (matches) {
+                        tokens.push(...matches);
+                    }
+                });
+
+                return [...new Set(tokens)]; // Remove duplicates
+            }
+
+            // Check if token is fine-grained
+            isFineGrainedToken(token) {
+                return token.startsWith('github_pat_');
+            }
+
+            // Make API request with error handling
+            async makeRequest(endpoint, token = null) {
+                const headers = {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'GitHub-Token-Analyzer/1.0'
+                };
+
+                if (token) {
+                    headers['Authorization'] = `token ${token}`;
+                    if (this.isFineGrainedToken(token)) {
+                        headers['Accept'] = 'application/vnd.github+json';
+                        headers['X-GitHub-Api-Version'] = '2022-11-28';
+                    }
+                }
+
+                try {
+                    const response = await fetch(`${this.baseUrl}${endpoint}`, { headers });
+                    
+                    // Update rate limit info
+                    this.rateLimitRemaining = parseInt(response.headers.get('X-RateLimit-Remaining')) || 0;
+                    this.rateLimitReset = parseInt(response.headers.get('X-RateLimit-Reset')) || null;
+
+                    if (response.status === 401) {
+                        throw new Error('Invalid token or insufficient permissions');
+                    } else if (response.status === 403) {
+                        throw new Error('Rate limit exceeded or access forbidden');
+                    } else if (response.status === 404) {
+                        throw new Error('Resource not found');
+                    } else if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    return {
+                        data: await response.json(),
+                        headers: response.headers,
+                        status: response.status
+                    };
+                } catch (error) {
+                    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                        throw new Error('Network error - check your internet connection');
+                    }
+                    throw error;
+                }
+            }
+
+            // Validate token
+            async validateToken(token) {
+                try {
+                    const result = await this.makeRequest('/user', token);
+                    return { valid: true, data: result.data, headers: result.headers };
+                } catch (error) {
+                    return { valid: false, error: error.message };
+                }
+            }
+
+            // Get token scopes
+            getTokenScopes(headers) {
+                const scopesHeader = headers.get('X-OAuth-Scopes');
+                if (scopesHeader && scopesHeader.trim()) {
+                    return scopesHeader.split(',').map(scope => scope.trim()).filter(scope => scope);
+                }
+                return [];
+            }
+
+            // Get user repositories
+            async getUserRepositories(token, page = 1) {
+                try {
+                    const result = await this.makeRequest(`/user/repos?per_page=100&page=${page}`, token);
+                    return result.data;
+                } catch (error) {
+                    console.error('Error fetching repositories:', error);
+                    return [];
+                }
+            }
+
+            // Get all user repositories (paginated)
+            async getAllUserRepositories(token, progressCallback = null) {
+                let allRepos = [];
+                let page = 1;
+                const maxPages = 10; // Limit to 10 pages (1000 repos max) to prevent excessive API calls
+                
+                while (page <= maxPages) {
+                    if (progressCallback) {
+                        progressCallback(page - 1, maxPages);
+                    }
+                    
+                    const repos = await this.getUserRepositories(token, page);
+                    if (repos.length === 0) break;
+                    
+                    allRepos = allRepos.concat(repos);
+                    if (repos.length < 100) break; // Last page
+                    page++;
+                }
+                
+                if (progressCallback) {
+                    progressCallback(page - 1, page - 1); // Final progress update
+                }
+                
+                return allRepos;
+            }
+
+            // Get user organizations
+            async getUserOrganizations(token) {
+                try {
+                    const result = await this.makeRequest('/user/orgs', token);
+                    return result.data;
+                } catch (error) {
+                    console.error('Error fetching organizations:', error);
+                    return [];
+                }
+            }
+
+            // Get user gists
+            async getUserGists(token, progressCallback = null) {
+                try {
+                    let allGists = [];
+                    let page = 1;
+                    const maxPages = 5; // Limit to prevent excessive calls
+                    
+                    while (page <= maxPages) {
+                        if (progressCallback) {
+                            progressCallback(page - 1, maxPages);
+                        }
+                        
+                        const result = await this.makeRequest(`/gists?per_page=100&page=${page}`, token);
+                        if (result.data.length === 0) break;
+                        
+                        allGists = allGists.concat(result.data);
+                        if (result.data.length < 100) break;
+                        page++;
+                    }
+                    
+                    if (progressCallback) {
+                        progressCallback(page - 1, page - 1); // Final progress update
+                    }
+                    
+                    return allGists;
+                } catch (error) {
+                    console.error('Error fetching gists:', error);
+                    return [];
+                }
+            }
+
+            // Get user public keys
+            async getUserPublicKeys(token) {
+                try {
+                    const result = await this.makeRequest('/user/keys', token);
+                    return result.data;
+                } catch (error) {
+                    console.error('Error fetching public keys:', error);
+                    return [];
+                }
+            }
+
+            // Get repository variables and secrets
+            async getRepositoryVariables(token, repoFullName) {
+                const variables = [];
+                
+                try {
+                    // Get repository variables
+                    const varsResult = await this.makeRequest(`/repos/${repoFullName}/actions/variables`, token);
+                    if (varsResult.data && varsResult.data.variables) {
+                        varsResult.data.variables.forEach(variable => {
+                            variables.push({
+                                name: variable.name,
+                                value: variable.value,
+                                type: 'repository_variable',
+                                created_at: variable.created_at,
+                                updated_at: variable.updated_at
+                            });
+                        });
+                    }
+                } catch (error) {
+                    console.warn(`Could not fetch variables for ${repoFullName}:`, error);
+                }
+
+                try {
+                    // Get repository secrets (names only, values are hidden)
+                    const secretsResult = await this.makeRequest(`/repos/${repoFullName}/actions/secrets`, token);
+                    if (secretsResult.data && secretsResult.data.secrets) {
+                        secretsResult.data.secrets.forEach(secret => {
+                            variables.push({
+                                name: secret.name,
+                                value: null, // Secrets don't return values via API
+                                type: 'repository_secret',
+                                created_at: secret.created_at,
+                                updated_at: secret.updated_at
+                            });
+                        });
+                    }
+                } catch (error) {
+                    console.warn(`Could not fetch secrets for ${repoFullName}:`, error);
+                }
+
+                try {
+                    // Get repository environments
+                    const envsResult = await this.makeRequest(`/repos/${repoFullName}/environments`, token);
+                    if (envsResult.data && envsResult.data.environments) {
+                        for (const env of envsResult.data.environments) {
+                            const envName = env.name;
+                            
+                            try {
+                                // Get environment variables
+                                const envVarsResult = await this.makeRequest(`/repos/${repoFullName}/environments/${envName}/variables`, token);
+                                if (envVarsResult.data && envVarsResult.data.variables) {
+                                    envVarsResult.data.variables.forEach(variable => {
+                                        variables.push({
+                                            name: variable.name,
+                                            value: variable.value,
+                                            type: 'environment_variable',
+                                            environment: envName,
+                                            created_at: variable.created_at,
+                                            updated_at: variable.updated_at
+                                        });
+                                    });
+                                }
+                            } catch (error) {
+                                console.warn(`Could not fetch environment variables for ${repoFullName}/${envName}:`, error);
+                            }
+
+                            try {
+                                // Get environment secrets
+                                const envSecretsResult = await this.makeRequest(`/repos/${repoFullName}/environments/${envName}/secrets`, token);
+                                if (envSecretsResult.data && envSecretsResult.data.secrets) {
+                                    envSecretsResult.data.secrets.forEach(secret => {
+                                        variables.push({
+                                            name: secret.name,
+                                            value: null, // Secrets don't return values via API
+                                            type: 'environment_secret',
+                                            environment: envName,
+                                            created_at: secret.created_at,
+                                            updated_at: secret.updated_at
+                                        });
+                                    });
+                                }
+                            } catch (error) {
+                                console.warn(`Could not fetch environment secrets for ${repoFullName}/${envName}:`, error);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.warn(`Could not fetch environments for ${repoFullName}:`, error);
+                }
+
+                return variables;
+            }
+
+            // Get organization variables and secrets
+            async getOrganizationVariables(token, orgName) {
+                const variables = [];
+                
+                try {
+                    // Get organization variables
+                    const varsResult = await this.makeRequest(`/orgs/${orgName}/actions/variables`, token);
+                    if (varsResult.data && varsResult.data.variables) {
+                        varsResult.data.variables.forEach(variable => {
+                            variables.push({
+                                name: variable.name,
+                                value: variable.value,
+                                type: 'organization_variable',
+                                visibility: variable.visibility,
+                                created_at: variable.created_at,
+                                updated_at: variable.updated_at
+                            });
+                        });
+                    }
+                } catch (error) {
+                    console.warn(`Could not fetch organization variables for ${orgName}:`, error);
+                }
+
+                try {
+                    // Get organization secrets
+                    const secretsResult = await this.makeRequest(`/orgs/${orgName}/actions/secrets`, token);
+                    if (secretsResult.data && secretsResult.data.secrets) {
+                        secretsResult.data.secrets.forEach(secret => {
+                            variables.push({
+                                name: secret.name,
+                                value: null, // Secrets don't return values via API
+                                type: 'organization_secret',
+                                visibility: secret.visibility,
+                                created_at: secret.created_at,
+                                updated_at: secret.updated_at
+                            });
+                        });
+                    }
+                } catch (error) {
+                    console.warn(`Could not fetch organization secrets for ${orgName}:`, error);
+                }
+
+                return variables;
+            }
+
+            // Get repository configuration and permissions
+            async getRepositoryConfig(token, repoFullName) {
+                const config = {
+                    basic: null,
+                    actionsPermissions: null,
+                    selectedActions: null,
+                    workflowPermissions: null,
+                    hasAdminAccess: false
+                };
+
+                try {
+                    // Get basic repository info
+                    const repoResult = await this.makeRequest(`/repos/${repoFullName}`, token);
+                    if (repoResult.data) {
+                        config.basic = {
+                            private: repoResult.data.private,
+                            archived: repoResult.data.archived,
+                            disabled: repoResult.data.disabled,
+                            permissions: repoResult.data.permissions,
+                            security_and_analysis: repoResult.data.security_and_analysis,
+                            allow_forking: repoResult.data.allow_forking,
+                            allow_merge_commit: repoResult.data.allow_merge_commit,
+                            allow_squash_merge: repoResult.data.allow_squash_merge,
+                            allow_rebase_merge: repoResult.data.allow_rebase_merge,
+                            delete_branch_on_merge: repoResult.data.delete_branch_on_merge
+                        };
+                        config.hasAdminAccess = repoResult.data.permissions?.admin || false;
+                    }
+                } catch (error) {
+                    console.warn(`Could not fetch basic config for ${repoFullName}:`, error);
+                }
+
+                // If we have admin access, get additional settings
+                if (config.hasAdminAccess) {
+                    try {
+                        // Get Actions permissions
+                        const actionsResult = await this.makeRequest(`/repos/${repoFullName}/actions/permissions`, token);
+                        if (actionsResult.data) {
+                            config.actionsPermissions = {
+                                enabled: actionsResult.data.enabled,
+                                allowed_actions: actionsResult.data.allowed_actions,
+                                selected_actions_url: actionsResult.data.selected_actions_url
+                            };
+                        }
+                    } catch (error) {
+                        console.warn(`Could not fetch actions permissions for ${repoFullName}:`, error);
+                    }
+
+                    try {
+                        // Get selected actions (if applicable)
+                        const selectedActionsResult = await this.makeRequest(`/repos/${repoFullName}/actions/permissions/selected-actions`, token);
+                        if (selectedActionsResult.data) {
+                            config.selectedActions = {
+                                github_owned_allowed: selectedActionsResult.data.github_owned_allowed,
+                                verified_allowed: selectedActionsResult.data.verified_allowed,
+                                patterns_allowed: selectedActionsResult.data.patterns_allowed || []
+                            };
+                        }
+                    } catch (error) {
+                        console.warn(`Could not fetch selected actions for ${repoFullName}:`, error);
+                    }
+
+                    try {
+                        // Get workflow permissions
+                        const workflowResult = await this.makeRequest(`/repos/${repoFullName}/actions/permissions/workflow`, token);
+                        if (workflowResult.data) {
+                            config.workflowPermissions = {
+                                default_workflow_permissions: workflowResult.data.default_workflow_permissions,
+                                can_approve_pull_request_reviews: workflowResult.data.can_approve_pull_request_reviews
+                            };
+                        }
+                    } catch (error) {
+                        console.warn(`Could not fetch workflow permissions for ${repoFullName}:`, error);
+                    }
+                }
+
+                return config;
+            }
+
+            // Get organization configuration and permissions
+            async getOrganizationConfig(token, orgName) {
+                const config = {
+                    actionsPermissions: null,
+                    repositoriesPermissions: null,
+                    selectedActions: null,
+                    workflowPermissions: null
+                };
+
+                try {
+                    // Get organization Actions permissions
+                    const actionsResult = await this.makeRequest(`/orgs/${orgName}/actions/permissions`, token);
+                    if (actionsResult.data) {
+                        config.actionsPermissions = {
+                            enabled_repositories: actionsResult.data.enabled_repositories,
+                            allowed_actions: actionsResult.data.allowed_actions,
+                            selected_actions_url: actionsResult.data.selected_actions_url
+                        };
+                    }
+                } catch (error) {
+                    console.warn(`Could not fetch org actions permissions for ${orgName}:`, error);
+                }
+
+                try {
+                    // Get repositories permissions
+                    const reposResult = await this.makeRequest(`/orgs/${orgName}/actions/permissions/repositories`, token);
+                    if (reposResult.data) {
+                        config.repositoriesPermissions = {
+                            total_count: reposResult.data.total_count,
+                            repositories: reposResult.data.repositories?.slice(0, 10) || [] // Limit to first 10
+                        };
+                    }
+                } catch (error) {
+                    console.warn(`Could not fetch org repositories permissions for ${orgName}:`, error);
+                }
+
+                try {
+                    // Get selected actions
+                    const selectedActionsResult = await this.makeRequest(`/orgs/${orgName}/actions/permissions/selected-actions`, token);
+                    if (selectedActionsResult.data) {
+                        config.selectedActions = {
+                            github_owned_allowed: selectedActionsResult.data.github_owned_allowed,
+                            verified_allowed: selectedActionsResult.data.verified_allowed,
+                            patterns_allowed: selectedActionsResult.data.patterns_allowed || []
+                        };
+                    }
+                } catch (error) {
+                    console.warn(`Could not fetch org selected actions for ${orgName}:`, error);
+                }
+
+                try {
+                    // Get workflow permissions
+                    const workflowResult = await this.makeRequest(`/orgs/${orgName}/actions/permissions/workflow`, token);
+                    if (workflowResult.data) {
+                        config.workflowPermissions = {
+                            default_workflow_permissions: workflowResult.data.default_workflow_permissions,
+                            can_approve_pull_request_reviews: workflowResult.data.can_approve_pull_request_reviews
+                        };
+                    }
+                } catch (error) {
+                    console.warn(`Could not fetch org workflow permissions for ${orgName}:`, error);
+                }
+
+                return config;
+            }
+
+            // Full token analysis
+            async analyzeToken(token) {
+                const analysis = {
+                    token: token.substring(0, 10) + '...',
+                    valid: false,
+                    tokenType: this.isFineGrainedToken(token) ? 'Fine-grained PAT' : 'Classic PAT',
+                    user: null,
+                    scopes: [],
+                    repositories: [],
+                    organizations: [],
+                    gists: [],
+                    publicKeys: [],
+                    variables: {
+                        repositories: {},
+                        organizations: {},
+                        totalCount: 0
+                    },
+                    configuration: {
+                        repositories: {},
+                        organizations: {},
+                        totalCount: 0
+                    },
+                    rateLimit: {
+                        remaining: this.rateLimitRemaining,
+                        reset: this.rateLimitReset
+                    },
+                    error: null
+                };
+
+                try {
+                    // Validate token and get user info
+                    const validation = await this.validateToken(token);
+                    if (!validation.valid) {
+                        analysis.error = validation.error;
+                        return analysis;
+                    }
+
+                    analysis.valid = true;
+                    analysis.user = validation.data;
+                    analysis.scopes = this.getTokenScopes(validation.headers);
+
+                    // Get repositories (with error handling for rate limits)
+                    try {
+                        analysis.repositories = await this.getAllUserRepositories(token);
+                    } catch (error) {
+                        console.warn('Could not fetch repositories:', error.message);
+                    }
+
+                    // Get organizations
+                    try {
+                        analysis.organizations = await this.getUserOrganizations(token);
+                    } catch (error) {
+                        console.warn('Could not fetch organizations:', error.message);
+                    }
+
+                    // Get gists if token has gist access
+                    if (analysis.scopes.includes('gist')) {
+                        try {
+                            analysis.gists = await this.getUserGists(token);
+                        } catch (error) {
+                            console.warn('Could not fetch gists:', error.message);
+                        }
+                    }
+
+                    // Get public keys if token has key access
+                    if (analysis.scopes.includes('admin:public_key') || analysis.scopes.includes('read:public_key')) {
+                        try {
+                            analysis.publicKeys = await this.getUserPublicKeys(token);
+                        } catch (error) {
+                            console.warn('Could not fetch public keys:', error.message);
+                        }
+                    }
+
+                    // Get variables and secrets if token has appropriate scopes
+                    const hasActionsScope = analysis.scopes.some(scope => 
+                        scope.includes('repo') || scope.includes('admin:org') || scope.includes('write:org')
+                    );
+                    
+                    if (hasActionsScope) {
+                        // Get repository variables (limit to first 10 repos to avoid excessive API calls)
+                        const reposToCheck = analysis.repositories.slice(0, 10);
+                        for (const repo of reposToCheck) {
+                            if (repo.permissions && (repo.permissions.admin || repo.permissions.push)) {
+                                try {
+                                    const repoVars = await this.getRepositoryVariables(token, repo.full_name);
+                                    if (repoVars.length > 0) {
+                                        analysis.variables.repositories[repo.full_name] = repoVars;
+                                        analysis.variables.totalCount += repoVars.length;
+                                    }
+                                } catch (error) {
+                                    console.warn(`Could not fetch variables for ${repo.full_name}:`, error.message);
+                                }
+                            }
+                        }
+
+                        // Get organization variables
+                        for (const org of analysis.organizations.slice(0, 5)) { // Limit to 5 orgs
+                            try {
+                                const orgVars = await this.getOrganizationVariables(token, org.login);
+                                if (orgVars.length > 0) {
+                                    analysis.variables.organizations[org.login] = orgVars;
+                                    analysis.variables.totalCount += orgVars.length;
+                                }
+                            } catch (error) {
+                                console.warn(`Could not fetch variables for org ${org.login}:`, error.message);
+                            }
+                        }
+                    }
+
+                    // Get repository and organization configurations if token has appropriate scopes
+                    const hasConfigScope = analysis.scopes.some(scope => 
+                        scope.includes('repo') || scope.includes('admin:org') || scope.includes('admin:repo_hook')
+                    );
+                    
+                    if (hasConfigScope) {
+                        // Get repository configurations (limit to first 5 repos to avoid excessive API calls)
+                        const reposToCheckConfig = analysis.repositories.slice(0, 5);
+                        for (const repo of reposToCheckConfig) {
+                            try {
+                                const repoConfig = await this.getRepositoryConfig(token, repo.full_name);
+                                if (repoConfig.basic || repoConfig.actionsPermissions || repoConfig.workflowPermissions) {
+                                    analysis.configuration.repositories[repo.full_name] = repoConfig;
+                                    analysis.configuration.totalCount++;
+                                }
+                            } catch (error) {
+                                console.warn(`Could not fetch config for ${repo.full_name}:`, error.message);
+                            }
+                        }
+
+                        // Get organization configurations
+                        for (const org of analysis.organizations.slice(0, 3)) { // Limit to 3 orgs
+                            try {
+                                const orgConfig = await this.getOrganizationConfig(token, org.login);
+                                if (orgConfig.actionsPermissions || orgConfig.workflowPermissions) {
+                                    analysis.configuration.organizations[org.login] = orgConfig;
+                                    analysis.configuration.totalCount++;
+                                }
+                            } catch (error) {
+                                console.warn(`Could not fetch config for org ${org.login}:`, error.message);
+                            }
+                        }
+                    }
+
+                    // Update final rate limit status
+                    analysis.rateLimit = {
+                        remaining: this.rateLimitRemaining,
+                        reset: this.rateLimitReset
+                    };
+
+                } catch (error) {
+                    analysis.error = error.message;
+                }
+
+                return analysis;
+            }
+        }
+
+        // Enhanced scope analysis with risk assessment
+        const SCOPE_ANALYSIS = {
+            // HIGH RISK SCOPES
+            'admin:org': {
+                description: 'Full administrative access to organizations',
+                risk: 'high',
+                capabilities: [
+                    'Create and delete organizations',
+                    'Manage organization settings',
+                    'Add/remove organization members',
+                    'Manage teams and permissions',
+                    'Access billing information'
+                ]
+            },
+            'delete_repo': {
+                description: 'Ability to delete repositories',
+                risk: 'high',
+                capabilities: [
+                    'Delete repositories permanently',
+                    'Remove repository history',
+                    'Destroy repository data'
+                ]
+            },
+            'delete:packages': {
+                description: 'Ability to delete GitHub packages',
+                risk: 'high',
+                capabilities: [
+                    'Delete packages permanently',
+                    'Remove package versions',
+                    'Destroy package artifacts'
+                ]
+            },
+            'repo': {
+                description: 'Complete access to all repositories',
+                risk: 'high',
+                capabilities: [
+                    'Read/write access to all repositories',
+                    'Access to private repositories',
+                    'Modify repository settings',
+                    'Manage collaborators and permissions'
+                ]
+            },
+            'site_admin': {
+                description: 'GitHub Enterprise site administration',
+                risk: 'high',
+                capabilities: [
+                    'Manage GitHub Enterprise settings',
+                    'Access all repositories and organizations',
+                    'Manage all users',
+                    'System-wide administrative access'
+                ]
+            },
+            'workflow': {
+                description: 'Access to GitHub Actions workflows',
+                risk: 'high',
+                capabilities: [
+                    'Create and modify workflows',
+                    'Access workflow secrets',
+                    'Execute arbitrary code in CI/CD',
+                    'Access to deployment environments'
+                ]
+            },
+            
+            // MEDIUM RISK SCOPES
+            'admin:public_key': {
+                description: 'Manage SSH keys for users',
+                risk: 'medium',
+                capabilities: [
+                    'Add SSH keys to user accounts',
+                    'Remove SSH keys',
+                    'List all public keys'
+                ]
+            },
+            'admin:gpg_key': {
+                description: 'Full access to GPG keys',
+                risk: 'medium',
+                capabilities: [
+                    'Add GPG keys to user accounts',
+                    'Remove GPG keys',
+                    'Manage commit signing keys'
+                ]
+            },
+            'admin:repo_hook': {
+                description: 'Full access to repository webhooks',
+                risk: 'medium',
+                capabilities: [
+                    'Create repository webhooks',
+                    'Modify webhook configurations',
+                    'Delete webhooks',
+                    'Access webhook payloads'
+                ]
+            },
+            'admin:org_hook': {
+                description: 'Full access to organization webhooks',
+                risk: 'medium',
+                capabilities: [
+                    'Create organization webhooks',
+                    'Modify organization webhook settings',
+                    'Delete organization webhooks'
+                ]
+            },
+            'write:org': {
+                description: 'Write access to organization and teams',
+                risk: 'medium',
+                capabilities: [
+                    'Modify organization settings',
+                    'Manage teams and memberships',
+                    'Add/remove organization members'
+                ]
+            },
+            'write:public_key': {
+                description: 'Write access to public keys',
+                risk: 'medium',
+                capabilities: [
+                    'Add SSH keys',
+                    'Modify existing SSH keys'
+                ]
+            },
+            'write:gpg_key': {
+                description: 'Write access to GPG keys',
+                risk: 'medium',
+                capabilities: [
+                    'Add GPG keys',
+                    'Modify existing GPG keys'
+                ]
+            },
+            'write:repo_hook': {
+                description: 'Write access to repository hooks',
+                risk: 'medium',
+                capabilities: [
+                    'Create repository webhooks',
+                    'Modify webhook configurations'
+                ]
+            },
+            'write:packages': {
+                description: 'Write access to GitHub packages',
+                risk: 'medium',
+                capabilities: [
+                    'Upload packages',
+                    'Modify package metadata',
+                    'Publish package versions'
+                ]
+            },
+            'write:discussion': {
+                description: 'Write access to team discussions',
+                risk: 'medium',
+                capabilities: [
+                    'Create team discussions',
+                    'Modify discussion content',
+                    'Manage discussion settings'
+                ]
+            },
+            'security_events': {
+                description: 'Access to security events and alerts',
+                risk: 'medium',
+                capabilities: [
+                    'View security alerts',
+                    'Access vulnerability data',
+                    'Manage security policies'
+                ]
+            },
+
+            // LOW RISK SCOPES (Standard permissions)
+            'public_repo': {
+                description: 'Access to public repositories only',
+                risk: 'low',
+                capabilities: [
+                    'Read public repositories',
+                    'Create issues and pull requests',
+                    'Comment on public repositories'
+                ]
+            },
+            'user': {
+                description: 'Access to user profile information',
+                risk: 'low',
+                capabilities: [
+                    'Read user profile data',
+                    'Access public user information'
+                ]
+            },
+            'user:email': {
+                description: 'Access to user email addresses',
+                risk: 'low',
+                capabilities: [
+                    'Read user email addresses',
+                    'Access primary email'
+                ]
+            },
+            'gist': {
+                description: 'Write access to gists',
+                risk: 'low',
+                capabilities: [
+                    'Create and edit gists',
+                    'Delete own gists'
+                ]
+            },
+            'notifications': {
+                description: 'Access to notifications',
+                risk: 'low',
+                capabilities: [
+                    'Read notifications',
+                    'Mark notifications as read'
+                ]
+            },
+            'read:org': {
+                description: 'Read access to organization and teams',
+                risk: 'low',
+                capabilities: [
+                    'View organization information',
+                    'Read team memberships'
+                ]
+            },
+            'read:packages': {
+                description: 'Read access to GitHub packages',
+                risk: 'low',
+                capabilities: [
+                    'Download packages',
+                    'View package metadata'
+                ]
+            },
+            'read:public_key': {
+                description: 'Read access to public keys',
+                risk: 'low',
+                capabilities: [
+                    'List public SSH keys',
+                    'View key information'
+                ]
+            },
+            'read:gpg_key': {
+                description: 'Read access to GPG keys',
+                risk: 'low',
+                capabilities: [
+                    'List GPG keys',
+                    'View key information'
+                ]
+            },
+            'read:repo_hook': {
+                description: 'Read access to repository hooks',
+                risk: 'low',
+                capabilities: [
+                    'List repository webhooks',
+                    'View webhook configurations'
+                ]
+            },
+            'read:discussion': {
+                description: 'Read access to team discussions',
+                risk: 'low',
+                capabilities: [
+                    'View team discussions',
+                    'Read discussion content'
+                ]
+            },
+            'repo:status': {
+                description: 'Access to commit status',
+                risk: 'low',
+                capabilities: [
+                    'Create commit statuses',
+                    'Update build status'
+                ]
+            },
+            'repo_deployment': {
+                description: 'Access to deployment statuses',
+                risk: 'low',
+                capabilities: [
+                    'Create deployments',
+                    'Update deployment status'
+                ]
+            },
+            'user:follow': {
+                description: 'Access to follow/unfollow users',
+                risk: 'low',
+                capabilities: [
+                    'Follow users',
+                    'Unfollow users'
+                ]
+            }
+        };
+
+        // Global analyzer instance
+        const analyzer = new GitHubTokenAnalyzer();
+
+        // Analyze single token
+        async function analyzeToken() {
+            const tokenInput = document.getElementById('token-input');
+            const token = tokenInput.value.trim();
+            
+            if (!token) {
+                showError('Please enter a GH token');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('results');
+            
+            // Show initial progress
+            showSingleTokenProgress(0, 'Initializing token analysis...', token.substring(0, 10) + '...');
+
+            try {
+                // Step 1: Validate token
+                showSingleTokenProgress(1, 'Validating token and fetching user info...', token.substring(0, 10) + '...');
+                const validation = await analyzer.validateToken(token);
+                if (!validation.valid) {
+                    hideProgress();
+                    showError(`Token validation failed: ${validation.error}`);
+                    return;
+                }
+
+                // Step 2: Get basic user info and scopes
+                showSingleTokenProgress(2, 'Analyzing token scopes and permissions...', token.substring(0, 10) + '...');
+                const user = validation.data;
+                const scopes = analyzer.getTokenScopes(validation.headers);
+
+                // Step 3: Get repositories
+                showSingleTokenProgress(3, 'Fetching accessible repositories...', token.substring(0, 10) + '...');
+                const repositories = await analyzer.getAllUserRepositories(token, (current, total) => {
+                    if (total > 0) {
+                        showSingleTokenProgress(3, `Fetching accessible repositories... (${current}/${total} pages)`, token.substring(0, 10) + '...');
+                    }
+                });
+
+                // Step 4: Get organizations
+                showSingleTokenProgress(4, 'Fetching user organizations...', token.substring(0, 10) + '...');
+                const organizations = await analyzer.getUserOrganizations(token);
+
+                // Step 5: Get gists (if applicable)
+                let gists = [];
+                if (scopes.includes('gist')) {
+                    showSingleTokenProgress(5, 'Fetching accessible gists...', token.substring(0, 10) + '...');
+                    gists = await analyzer.getUserGists(token, (current, total) => {
+                        if (total > 0) {
+                            showSingleTokenProgress(5, `Fetching accessible gists... (${current}/${total} pages)`, token.substring(0, 10) + '...');
+                        }
+                    });
+                } else {
+                    showSingleTokenProgress(5, 'Skipping gists (no gist scope)...', token.substring(0, 10) + '...');
+                }
+
+                // Step 6: Get public keys (if applicable)
+                let publicKeys = [];
+                if (scopes.includes('admin:public_key') || scopes.includes('read:public_key')) {
+                    showSingleTokenProgress(6, 'Fetching SSH public keys...', token.substring(0, 10) + '...');
+                    publicKeys = await analyzer.getUserPublicKeys(token);
+                } else {
+                    showSingleTokenProgress(6, 'Skipping public keys (no key scope)...', token.substring(0, 10) + '...');
+                }
+
+                // Step 7: Get variables and secrets
+                const variables = { repositories: {}, organizations: {}, totalCount: 0 };
+                const hasActionsScope = scopes.some(scope => 
+                    scope.includes('repo') || scope.includes('admin:org') || scope.includes('write:org')
+                );
+                
+                if (hasActionsScope && repositories.length > 0) {
+                    // Get repository variables (limit to first 10 repos)
+                    const reposToCheck = repositories.slice(0, 10);
+                    const eligibleRepos = reposToCheck.filter(repo => repo.permissions && (repo.permissions.admin || repo.permissions.push));
+                    
+                    if (eligibleRepos.length > 0) {
+                        showSingleTokenProgress(7, `Analyzing variables and secrets... (0/${eligibleRepos.length} repositories)`, token.substring(0, 10) + '...');
+                        
+                        for (let i = 0; i < eligibleRepos.length; i++) {
+                            const repo = eligibleRepos[i];
+                            showSingleTokenProgress(7, `Analyzing variables and secrets... (${i + 1}/${eligibleRepos.length} repositories)`, token.substring(0, 10) + '...');
+                            
+                            try {
+                                const repoVars = await analyzer.getRepositoryVariables(token, repo.full_name);
+                                if (repoVars.length > 0) {
+                                    variables.repositories[repo.full_name] = repoVars;
+                                    variables.totalCount += repoVars.length;
+                                }
+                            } catch (error) {
+                                console.warn(`Could not fetch variables for ${repo.full_name}:`, error.message);
+                            }
+                        }
+                    }
+
+                    // Get organization variables
+                    const orgsToCheck = organizations.slice(0, 5);
+                    if (orgsToCheck.length > 0) {
+                        for (let i = 0; i < orgsToCheck.length; i++) {
+                            const org = orgsToCheck[i];
+                            showSingleTokenProgress(7, `Analyzing variables and secrets... (${eligibleRepos.length}/${eligibleRepos.length} repos, ${i + 1}/${orgsToCheck.length} orgs)`, token.substring(0, 10) + '...');
+                            
+                            try {
+                                const orgVars = await analyzer.getOrganizationVariables(token, org.login);
+                                if (orgVars.length > 0) {
+                                    variables.organizations[org.login] = orgVars;
+                                    variables.totalCount += orgVars.length;
+                                }
+                            } catch (error) {
+                                console.warn(`Could not fetch variables for org ${org.login}:`, error.message);
+                            }
+                        }
+                    }
+                } else {
+                    showSingleTokenProgress(7, 'Skipping variables (no actions scope)...', token.substring(0, 10) + '...');
+                }
+
+                // Step 8: Get configuration
+                const configuration = { repositories: {}, organizations: {}, totalCount: 0 };
+                const hasConfigScope = scopes.some(scope => 
+                    scope.includes('repo') || scope.includes('admin:org') || scope.includes('admin:repo_hook')
+                );
+                
+                if (hasConfigScope && repositories.length > 0) {
+                    // Get repository configurations (limit to first 5 repos)
+                    const reposToCheckConfig = repositories.slice(0, 5);
+                    
+                    if (reposToCheckConfig.length > 0) {
+                        showSingleTokenProgress(8, `Analyzing security configuration... (0/${reposToCheckConfig.length} repositories)`, token.substring(0, 10) + '...');
+                        
+                        for (let i = 0; i < reposToCheckConfig.length; i++) {
+                            const repo = reposToCheckConfig[i];
+                            showSingleTokenProgress(8, `Analyzing security configuration... (${i + 1}/${reposToCheckConfig.length} repositories)`, token.substring(0, 10) + '...');
+                            
+                            try {
+                                const repoConfig = await analyzer.getRepositoryConfig(token, repo.full_name);
+                                if (repoConfig.basic || repoConfig.actionsPermissions || repoConfig.workflowPermissions) {
+                                    configuration.repositories[repo.full_name] = repoConfig;
+                                    configuration.totalCount++;
+                                }
+                            } catch (error) {
+                                console.warn(`Could not fetch config for ${repo.full_name}:`, error.message);
+                            }
+                        }
+                    }
+
+                    // Get organization configurations
+                    const orgsToCheckConfig = organizations.slice(0, 3);
+                    if (orgsToCheckConfig.length > 0) {
+                        for (let i = 0; i < orgsToCheckConfig.length; i++) {
+                            const org = orgsToCheckConfig[i];
+                            showSingleTokenProgress(8, `Analyzing security configuration... (${reposToCheckConfig.length}/${reposToCheckConfig.length} repos, ${i + 1}/${orgsToCheckConfig.length} orgs)`, token.substring(0, 10) + '...');
+                            
+                            try {
+                                const orgConfig = await analyzer.getOrganizationConfig(token, org.login);
+                                if (orgConfig.actionsPermissions || orgConfig.workflowPermissions) {
+                                    configuration.organizations[org.login] = orgConfig;
+                                    configuration.totalCount++;
+                                }
+                            } catch (error) {
+                                console.warn(`Could not fetch config for org ${org.login}:`, error.message);
+                            }
+                        }
+                    }
+                } else {
+                    showSingleTokenProgress(8, 'Skipping configuration (no config scope)...', token.substring(0, 10) + '...');
+                }
+
+                // Step 9: Complete analysis
+                showSingleTokenProgress(9, 'Completing analysis...', token.substring(0, 10) + '...');
+
+                // Build final analysis object
+                const analysis = {
+                    token: token.substring(0, 10) + '...',
+                    valid: true,
+                    tokenType: analyzer.isFineGrainedToken(token) ? 'Fine-grained PAT' : 'Classic PAT',
+                    user: user,
+                    scopes: scopes,
+                    repositories: repositories,
+                    organizations: organizations,
+                    gists: gists,
+                    publicKeys: publicKeys,
+                    variables: variables,
+                    configuration: configuration,
+                    rateLimit: {
+                        remaining: analyzer.rateLimitRemaining,
+                        reset: analyzer.rateLimitReset
+                    },
+                    error: null
+                };
+
+                // Hide progress and show results
+                hideProgress();
+                displayTokenAnalysis(analysis);
+            } catch (error) {
+                hideProgress();
+                showError(`Analysis failed: ${error.message}`);
+            }
+        }
+
+        // Scan text for tokens
+        async function scanText() {
+            const textInput = document.getElementById('text-scan');
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                showError('Please enter text to scan');
+                return;
+            }
+
+            const tokens = analyzer.detectGitHubTokens(text);
+            
+            if (tokens.length === 0) {
+                showWarning('No GH tokens found in the provided text');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('results');
+            
+            // Show initial progress
+            showProgress(0, tokens.length, 'Initializing scan...', '');
+            
+            // Clear any existing results after progress bar
+            const progressContainer = document.querySelector('.progress-container');
+            let resultsContainer = document.getElementById('scan-results');
+            if (!resultsContainer) {
+                resultsContainer = document.createElement('div');
+                resultsContainer.id = 'scan-results';
+                resultsDiv.appendChild(resultsContainer);
+            } else {
+                resultsContainer.innerHTML = '';
+            }
+
+            for (let i = 0; i < tokens.length; i++) {
+                try {
+                    // Update progress
+                    const tokenPreview = tokens[i].substring(0, 10) + '...';
+                    showProgress(i, tokens.length, `Analyzing token ${i + 1} of ${tokens.length}`, tokenPreview);
+                    
+                    const analysis = await analyzer.analyzeToken(tokens[i]);
+                    displayTokenAnalysis(analysis, i + 1, resultsContainer);
+                    
+                    // Update progress after completion
+                    if (i + 1 === tokens.length) {
+                        // Final token - show completion message briefly then hide
+                        showProgress(i + 1, tokens.length, 'Scan completed!', tokenPreview);
+                        setTimeout(() => {
+                            hideProgress();
+                        }, 2000); // Hide after 2 seconds
+                    } else {
+                        showProgress(i + 1, tokens.length, `Completed token ${i + 1}`, tokenPreview);
+                    }
+                    
+                    // Add delay between requests to avoid rate limiting
+                    if (i < tokens.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                } catch (error) {
+                    showError(`Analysis failed for token ${i + 1}: ${error.message}`);
+                }
+            }
+        }
+
+        // Display token analysis results
+        function displayTokenAnalysis(analysis, tokenNumber = null, targetContainer = null) {
+            const resultsDiv = targetContainer || document.getElementById('results');
+            
+            const tokenTitle = tokenNumber ? `Token #${tokenNumber}` : 'Token Analysis';
+            const statusClass = analysis.valid ? 'status-valid' : 'status-invalid';
+            const statusText = analysis.valid ? '✅ Valid' : '❌ Invalid';
+            
+            let html = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <span>${tokenTitle}</span>
+                        <span class="${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="result-body">
+            `;
+
+            // For single token analysis, use unified display
+            const isMultiTokenScan = tokenNumber !== null;
+
+            if (analysis.error) {
+                html += `<div class="error">Error: ${analysis.error}</div>`;
+                // Show token preview and type for invalid tokens in one line
+                html += `
+                    <div class="profile-section">
+                        <div class="profile-avatar">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; background: var(--error-bg); color: var(--error-text); font-size: 24px;">❌</div>
+                        </div>
+                        <div class="profile-info">
+                            <div class="profile-item">
+                                <span class="profile-label">Token Type:</span>
+                                <span class="profile-value">${analysis.tokenType}</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="profile-label">Token Preview:</span>
+                                <span class="profile-value" style="font-family: 'Courier New', monospace;">${analysis.token}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (analysis.valid && analysis.user) {
+                html += `
+                    <div class="profile-section">
+                        <div class="profile-avatar">
+                            <img src="${analysis.user.avatar_url}" alt="${analysis.user.login}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23ddd%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 font-size=%2240%22 fill=%22%23999%22>?</text></svg>'">
+                        </div>
+                        <div class="profile-info">
+                            <div class="profile-item">
+                                <span class="profile-label">Username:</span>
+                                <span class="profile-value">${analysis.user.login}</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="profile-label">Name:</span>
+                                <span class="profile-value">${analysis.user.name || 'Not specified'}</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="profile-label">Account Type:</span>
+                                <span class="profile-value">${analysis.user.type}</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="profile-label">Token Type:</span>
+                                <span class="profile-value">${analysis.tokenType}</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="profile-label">Token Preview:</span>
+                                <span class="profile-value" style="font-family: 'Courier New', monospace;">${analysis.token}</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="profile-label">Public Repos:</span>
+                                <span class="profile-value">${analysis.user.public_repos}</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="profile-label">Followers:</span>
+                                <span class="profile-value">${analysis.user.followers}</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="profile-label">API Rate Limit:</span>
+                                <span class="profile-value">${analysis.rateLimit.remaining !== null ? analysis.rateLimit.remaining : 'Unknown'} remaining | Reset: ${analysis.rateLimit.reset ? new Date(analysis.rateLimit.reset * 1000).toLocaleTimeString() : 'Unknown'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Token scopes with risk analysis
+                if (analysis.scopes.length > 0) {
+                    const highRiskScopes = analysis.scopes.filter(scope => SCOPE_ANALYSIS[scope]?.risk === 'high');
+                    const mediumRiskScopes = analysis.scopes.filter(scope => SCOPE_ANALYSIS[scope]?.risk === 'medium');
+                    const lowRiskScopes = analysis.scopes.filter(scope => SCOPE_ANALYSIS[scope]?.risk === 'low');
+                    const unknownScopes = analysis.scopes.filter(scope => !SCOPE_ANALYSIS[scope]);
+                    
+                    html += '<h3>🔑 Token Scopes & Risk Analysis</h3>';
+                    
+                    if (highRiskScopes.length > 0 || mediumRiskScopes.length > 0) {
+                        html += '<div class="warning">⚠️ This token has elevated privileges that could be dangerous if compromised!</div>';
+                    }
+                    
+                    html += '<div class="scope-list">';
+                    
+                    // High risk scopes first
+                    highRiskScopes.forEach(scope => {
+                        const scopeInfo = SCOPE_ANALYSIS[scope];
+                        html += `<span class="scope-tag risk-high" onclick="showScopeModal('${scope}')" title="HIGH RISK: ${scopeInfo.description}">${scope}</span>`;
+                    });
+                    
+                    // Medium risk scopes
+                    mediumRiskScopes.forEach(scope => {
+                        const scopeInfo = SCOPE_ANALYSIS[scope];
+                        html += `<span class="scope-tag risk-medium" onclick="showScopeModal('${scope}')" title="MEDIUM RISK: ${scopeInfo.description}">${scope}</span>`;
+                    });
+                    
+                    // Low risk scopes
+                    lowRiskScopes.forEach(scope => {
+                        const scopeInfo = SCOPE_ANALYSIS[scope];
+                        html += `<span class="scope-tag risk-low" onclick="showScopeModal('${scope}')" title="LOW RISK: ${scopeInfo.description}">${scope}</span>`;
+                    });
+                    
+                    // Unknown scopes
+                    unknownScopes.forEach(scope => {
+                        html += `<span class="scope-tag" onclick="showScopeModal('${scope}')" title="Unknown scope: ${scope}">${scope}</span>`;
+                    });
+                    
+                    html += '</div>';
+                    
+                    // Risk summary
+                    if (highRiskScopes.length > 0 || mediumRiskScopes.length > 0 || unknownScopes.length > 0) {
+                        html += '<div style="margin-top: 15px; font-size: 14px; color: var(--text-secondary);">';
+                        html += `<strong>Risk Summary:</strong> `;
+                        if (highRiskScopes.length > 0) html += `🔴 ${highRiskScopes.length} High Risk `;
+                        if (mediumRiskScopes.length > 0) html += `🟡 ${mediumRiskScopes.length} Medium Risk `;
+                        if (lowRiskScopes.length > 0) html += `🟢 ${lowRiskScopes.length} Low Risk `;
+                        if (unknownScopes.length > 0) html += `⚪ ${unknownScopes.length} Unknown `;
+                        html += '<br><em>Click any scope to see detailed capabilities and risks</em>';
+                        html += '</div>';
+                    }
+                    
+                } else {
+                    html += '<div class="warning">No scopes detected - this might be a fine-grained token with repository-specific permissions</div>';
+                }
+
+                // Organizations
+                if (analysis.organizations.length > 0) {
+                    html += `<h3>🏢 Organizations (${analysis.organizations.length})</h3>`;
+                    html += '<div class="repo-list">';
+                    analysis.organizations.forEach(org => {
+                        html += `
+                            <div class="repo-item">
+                                <span class="repo-name">${org.login}</span>
+                                <span class="repo-public">Organization</span>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                // Gists (if gist scope is available)
+                if (analysis.gists.length > 0) {
+                    const privateGists = analysis.gists.filter(gist => !gist.public);
+                    const publicGists = analysis.gists.filter(gist => gist.public);
+                    
+                    html += `<h3>📝 Accessible Gists (${analysis.gists.length} total)</h3>`;
+                    html += `<p>🔒 Private: ${privateGists.length} | 🔓 Public: ${publicGists.length}</p>`;
+                    
+                    if (privateGists.length > 0) {
+                        html += '<div class="warning">⚠️ Token has access to private gists containing potentially sensitive code/data!</div>';
+                    }
+                    
+                    html += '<div class="repo-list">';
+                    analysis.gists.forEach(gist => {
+                        const gistClass = gist.public ? 'repo-public' : 'repo-private';
+                        const gistLabel = gist.public ? 'Public' : 'Private';
+                        const fileCount = Object.keys(gist.files).length;
+                        const firstFileName = Object.keys(gist.files)[0] || 'untitled';
+                        const description = gist.description || 'No description';
+                        const updatedDate = new Date(gist.updated_at).toLocaleDateString();
+                        
+                        // Create hyperlink for public gists, plain text for private
+                        let gistNameElement;
+                        if (gist.public) {
+                            gistNameElement = `<a href="${gist.html_url}" target="_blank" rel="noopener noreferrer" class="repo-link">${firstFileName}</a>`;
+                        } else {
+                            gistNameElement = `<span class="repo-name-private">${firstFileName}</span>`;
+                        }
+                        
+                        html += `
+                            <div class="repo-item">
+                                <div>
+                                    ${gistNameElement}
+                                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                        ${description} • ${fileCount} file${fileCount !== 1 ? 's' : ''} • Updated ${updatedDate}
+                                    </div>
+                                </div>
+                                <span class="${gistClass}">${gistLabel}</span>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                // Public Keys (if public key scope is available)
+                if (analysis.publicKeys.length > 0) {
+                    html += `<h3>🔑 SSH Public Keys (${analysis.publicKeys.length})</h3>`;
+                    html += '<div class="warning">⚠️ Token has access to SSH public keys - potential security risk if compromised!</div>';
+                    html += '<div class="repo-list">';
+                    analysis.publicKeys.forEach(key => {
+                        const keyPreview = key.key.substring(0, 50) + '...';
+                        const addedDate = new Date(key.created_at).toLocaleDateString();
+                        
+                        html += `
+                            <div class="repo-item">
+                                <div>
+                                    <span class="repo-name-private">${key.title || 'Untitled Key'}</span>
+                                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; font-family: 'Courier New', monospace;">
+                                        ${keyPreview}
+                                    </div>
+                                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                                        ID: ${key.id} • Added ${addedDate}
+                                    </div>
+                                </div>
+                                <span class="repo-private">SSH Key</span>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                // Use unified repository display for both single and multi-token analysis
+                if (analysis.repositories.length > 0) {
+                    const privateRepos = analysis.repositories.filter(repo => repo.private);
+                    const publicRepos = analysis.repositories.filter(repo => !repo.private);
+                    const reposWithVariables = Object.keys(analysis.variables.repositories).length;
+                    const reposWithConfig = Object.keys(analysis.configuration.repositories).length;
+                    
+                    html += `<h3>📁 Repository Analysis (${analysis.repositories.length} total)</h3>`;
+                    html += `<p>🔒 Private: ${privateRepos.length} | 🔓 Public: ${publicRepos.length} | ⚙️ Variables: ${reposWithVariables} | 🔧 Config: ${reposWithConfig}</p>`;
+                    
+                    if (reposWithVariables > 0 || reposWithConfig > 0) {
+                        html += '<div class="warning">⚠️ Token has access to sensitive repository data - variables, secrets, and security configuration!</div>';
+                    }
+                    
+                    html += '<div class="repo-list">';
+                    analysis.repositories.forEach(repo => {
+                        const repoClass = repo.private ? 'repo-private' : 'repo-public';
+                        const repoLabel = repo.private ? 'Private' : 'Public';
+                        
+                        // Get additional data for this repository
+                        const repoVariables = analysis.variables.repositories[repo.full_name] || [];
+                        const repoConfig = analysis.configuration.repositories[repo.full_name] || null;
+                        
+                        // Build comprehensive repository information
+                        let repoDetails = [];
+                        let securityIssues = [];
+                        let variablesInfo = '';
+                        let configInfo = '';
+                        
+                        // Basic repository info
+                        if (repo.permissions) {
+                            if (repo.permissions.admin) repoDetails.push('🔑 Admin');
+                            else if (repo.permissions.push) repoDetails.push('✏️ Write');
+                            else if (repo.permissions.pull) repoDetails.push('👁️ Read');
+                        }
+                        
+                        if (repo.archived) repoDetails.push('📦 Archived');
+                        if (repo.fork) repoDetails.push('🍴 Fork');
+                        
+                        // Variables and secrets information
+                        if (repoVariables.length > 0) {
+                            const secrets = repoVariables.filter(v => v.type.includes('secret'));
+                            const variables = repoVariables.filter(v => v.type.includes('variable'));
+                            const envItems = repoVariables.filter(v => v.type.includes('environment'));
+                            
+                            repoDetails.push(`🔒 ${secrets.length} secrets`);
+                            repoDetails.push(`📋 ${variables.length} variables`);
+                            if (envItems.length > 0) repoDetails.push(`🌍 ${envItems.length} env items`);
+                            
+                            variablesInfo = `
+                                <div style="margin-top: 8px; padding: 8px; background: var(--warning-bg); border-radius: 4px; border-left: 3px solid var(--color-yellow);">
+                                    <div style="font-size: 11px; font-weight: 600; color: var(--warning-text); margin-bottom: 4px;">Variables & Secrets:</div>
+                                    ${repoVariables.map(variable => {
+                                        const typeEmoji = variable.type.includes('secret') ? '🔒' : 
+                                                         variable.type.includes('environment') ? '🌍' : '📋';
+                                        const envText = variable.environment ? ` (${variable.environment})` : '';
+                                        // For variables with actual values, show them; otherwise just show the name
+                                        const hasValue = variable.value && !variable.type.includes('secret');
+                                        const valueDisplay = hasValue ? 
+                                            `: <span style="color: var(--text-accent);">${variable.value.length > 20 ? variable.value.substring(0, 20) + '...' : variable.value}</span>` : '';
+                                        
+                                        return `<div style="font-size: 10px; margin: 1px 0; font-family: 'Courier New', monospace;">
+                                            ${typeEmoji} <strong>${variable.name}</strong>${envText}${valueDisplay}
+                                        </div>`;
+                                    }).join('')}
+                                </div>
+                            `;
+                        }
+                        
+                        // Configuration information
+                        if (repoConfig) {
+                            let configSummary = [];
+                            
+                            // Basic configuration
+                            if (repoConfig.basic) {
+                                if (repoConfig.basic.allow_forking) configSummary.push('🍴 Forking');
+                                if (repoConfig.basic.delete_branch_on_merge) configSummary.push('🗑️ Auto-delete branches');
+                            }
+                            
+                            // Actions configuration
+                            if (repoConfig.actionsPermissions) {
+                                const actions = repoConfig.actionsPermissions;
+                                if (actions.enabled) {
+                                    configSummary.push('⚡ Actions');
+                                    if (actions.allowed_actions === 'all') {
+                                        securityIssues.push('🔴 All Actions Allowed');
+                                    } else if (actions.allowed_actions === 'local_only') {
+                                        configSummary.push('🟡 Local Actions Only');
+                                    } else {
+                                        configSummary.push('🟢 Selected Actions');
+                                    }
+                                } else {
+                                    configSummary.push('🚫 Actions Disabled');
+                                }
+                            }
+                            
+                            // Workflow permissions
+                            if (repoConfig.workflowPermissions) {
+                                const workflow = repoConfig.workflowPermissions;
+                                if (workflow.default_workflow_permissions === 'write') {
+                                    securityIssues.push('🔴 Default Write Permissions');
+                                } else {
+                                    configSummary.push('🟢 Read Permissions');
+                                }
+                                if (workflow.can_approve_pull_request_reviews) {
+                                    securityIssues.push('🟡 Can Approve PRs');
+                                }
+                            }
+                            
+                            if (configSummary.length > 0) {
+                                repoDetails.push(...configSummary);
+                            }
+                            
+                            // Add detailed config info if there are patterns
+                            if (repoConfig.selectedActions && repoConfig.selectedActions.patterns_allowed && repoConfig.selectedActions.patterns_allowed.length > 0) {
+                                configInfo = `
+                                    <div style="margin-top: 6px; padding: 6px; background: var(--progress-bg); border-radius: 4px; border-left: 3px solid var(--text-accent);">
+                                        <div style="font-size: 10px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">Allowed Action Patterns:</div>
+                                        ${repoConfig.selectedActions.patterns_allowed.slice(0, 2).map(pattern => 
+                                            `<div style="font-size: 9px; font-family: 'Courier New', monospace; color: var(--text-secondary);">• ${pattern}</div>`
+                                        ).join('')}
+                                        ${repoConfig.selectedActions.patterns_allowed.length > 2 ? `<div style="font-size: 9px; color: var(--text-secondary); font-style: italic;">... and ${repoConfig.selectedActions.patterns_allowed.length - 2} more</div>` : ''}
+                                    </div>
+                                `;
+                            }
+                        }
+                        
+                        // Create hyperlink for public repositories, plain text for private
+                        let repoNameElement;
+                        if (repo.private) {
+                            repoNameElement = `<span class="repo-name-private">${repo.full_name}</span>`;
+                        } else {
+                            repoNameElement = `<a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="repo-link">${repo.full_name}</a>`;
+                        }
+                        
+                        html += `
+                            <div class="repo-item" style="padding: 15px; border-bottom: 1px solid var(--border-color);">
+                                <div style="width: 100%;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        ${repoNameElement}
+                                        <span class="${repoClass}">${repoLabel}</span>
+                                    </div>
+                                    ${repoDetails.length > 0 ? `
+                                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">
+                                            ${repoDetails.join(' • ')}
+                                        </div>
+                                    ` : ''}
+                                    ${securityIssues.length > 0 ? `
+                                        <div style="margin-bottom: 8px;">
+                                            ${securityIssues.map(issue => `<span style="font-size: 11px; background: var(--error-bg); color: var(--error-text); padding: 2px 6px; border-radius: 4px; margin-right: 4px;">${issue}</span>`).join('')}
+                                        </div>
+                                    ` : ''}
+                                    ${variablesInfo}
+                                    ${configInfo}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                // Organization Variables & Secrets (keep separate as it's not repository-specific)
+                const orgVarCount = Object.keys(analysis.variables.organizations).length;
+                if (orgVarCount > 0) {
+                    html += `<h3>🏢 Organization Variables & Secrets (${orgVarCount} organizations)</h3>`;
+                    html += '<div class="warning">⚠️ Token has access to organization-wide variables and secrets!</div>';
+                    html += '<div class="repo-list">';
+                    
+                    Object.entries(analysis.variables.organizations).forEach(([orgName, variables]) => {
+                        const secretCount = variables.filter(v => v.type.includes('secret')).length;
+                        const variableCount = variables.filter(v => v.type.includes('variable')).length;
+                        
+                        html += `
+                            <div class="repo-item">
+                                <div>
+                                    <span class="repo-name-private">${orgName}</span>
+                                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                        🔒 ${secretCount} secrets • 📋 ${variableCount} variables
+                                    </div>
+                                    <div style="margin-top: 8px;">
+                                        ${variables.map(variable => {
+                                            const typeEmoji = variable.type.includes('secret') ? '🔒' : '📋';
+                                            const visibilityText = variable.visibility ? ` (${variable.visibility})` : '';
+                                            // For variables with actual values, show them; otherwise just show the name
+                                            const hasValue = variable.value && !variable.type.includes('secret');
+                                            const valueDisplay = hasValue ? 
+                                                `: <span style="color: var(--text-accent);">${variable.value.length > 30 ? variable.value.substring(0, 30) + '...' : variable.value}</span>` : '';
+                                            
+                                            return `<div style="font-size: 11px; margin: 2px 0; font-family: 'Courier New', monospace;">
+                                                ${typeEmoji} <strong>${variable.name}</strong>${visibilityText}${valueDisplay}
+                                            </div>`;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                                <span class="repo-private">Variables</span>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                // Organization Configuration (keep separate as it's not repository-specific)
+                const orgConfigCount = Object.keys(analysis.configuration.organizations).length;
+                if (orgConfigCount > 0) {
+                    html += `<h3>🏢 Organization Configuration (${orgConfigCount} organizations)</h3>`;
+                    html += '<div class="warning">⚠️ Token has access to organization-wide security configuration!</div>';
+                    html += '<div class="repo-list">';
+                    
+                    Object.entries(analysis.configuration.organizations).forEach(([orgName, config]) => {
+                        let configSummary = [];
+                        let securityIssues = [];
+                        
+                        // Analyze Actions permissions
+                        if (config.actionsPermissions) {
+                            const actions = config.actionsPermissions;
+                            if (actions.enabled_repositories === 'all') {
+                                securityIssues.push('🔴 All Repos Enabled');
+                            } else if (actions.enabled_repositories === 'selected') {
+                                configSummary.push('🟡 Selected Repos Only');
+                            } else {
+                                configSummary.push('🚫 Actions Disabled');
+                            }
+                            
+                            if (actions.allowed_actions === 'all') {
+                                securityIssues.push('🔴 All Actions Allowed');
+                            } else if (actions.allowed_actions === 'local_only') {
+                                configSummary.push('🟡 Local Actions Only');
+                            } else {
+                                configSummary.push('🟢 Selected Actions Only');
+                            }
+                        }
+                        
+                        // Analyze workflow permissions
+                        if (config.workflowPermissions) {
+                            const workflow = config.workflowPermissions;
+                            if (workflow.default_workflow_permissions === 'write') {
+                                securityIssues.push('🔴 Default Write Permissions');
+                            } else {
+                                configSummary.push('🟢 Default Read Permissions');
+                            }
+                            if (workflow.can_approve_pull_request_reviews) {
+                                securityIssues.push('🟡 Can Approve PRs');
+                            }
+                        }
+                        
+                        // Repository permissions info
+                        if (config.repositoriesPermissions) {
+                            const repoCount = config.repositoriesPermissions.total_count;
+                            if (repoCount > 0) {
+                                configSummary.push(`📁 ${repoCount} Enabled Repos`);
+                            }
+                        }
+                        
+                        html += `
+                            <div class="repo-item">
+                                <div>
+                                    <span class="repo-name-private">${orgName}</span>
+                                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                        ${configSummary.join(' • ')}
+                                    </div>
+                                    ${securityIssues.length > 0 ? `
+                                        <div style="margin-top: 6px;">
+                                            ${securityIssues.map(issue => `<span style="font-size: 11px; background: var(--error-bg); color: var(--error-text); padding: 2px 6px; border-radius: 4px; margin-right: 4px;">${issue}</span>`).join('')}
+                                        </div>
+                                    ` : ''}
+                                    ${config.selectedActions && config.selectedActions.patterns_allowed && config.selectedActions.patterns_allowed.length > 0 ? `
+                                        <div style="margin-top: 8px; font-size: 11px; font-family: 'Courier New', monospace;">
+                                            <strong>Allowed Patterns:</strong><br>
+                                            ${config.selectedActions.patterns_allowed.slice(0, 3).map(pattern => `• ${pattern}`).join('<br>')}
+                                            ${config.selectedActions.patterns_allowed.length > 3 ? `<br>... and ${config.selectedActions.patterns_allowed.length - 3} more` : ''}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <span class="repo-private">Config</span>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+            }
+
+            html += '</div></div>';
+            
+            if (tokenNumber === null || tokenNumber === 1) {
+                resultsDiv.innerHTML = html;
+            } else {
+                resultsDiv.innerHTML += html;
+            }
+        }
+
+        // Progress bar function for single token analysis
+        function showSingleTokenProgress(step, status, tokenPreview) {
+            const totalSteps = 9;
+            const percentage = (step / totalSteps) * 100;
+            
+            let progressHtml = `
+                <div class="progress-container">
+                    <div class="progress-header">
+                        <div class="progress-title">🔍 Analyzing GH Token</div>
+                        <div class="progress-counter">Step ${step}/${totalSteps}</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="progress-status">
+                        <span>${status}</span>
+                        <span class="current-token">${tokenPreview}</span>
+                        ${step < totalSteps ? '<span class="loading"></span>' : ''}
+                    </div>
+                </div>
+            `;
+
+            // Check if progress container already exists
+            const existingProgress = document.querySelector('.progress-container');
+            if (existingProgress) {
+                existingProgress.outerHTML = progressHtml;
+            } else {
+                // Create progress at the top of the page (fixed position)
+                document.body.insertAdjacentHTML('beforeend', progressHtml);
+            }
+        }
+
+        // Hide progress bar
+        function hideProgress() {
+            const existingProgress = document.querySelector('.progress-container');
+            if (existingProgress) {
+                existingProgress.remove();
+            }
+        }
+
+        // Progress bar function for multi-token scanning
+        function showProgress(current, total, status, currentToken = '') {
+            const resultsDiv = document.getElementById('results');
+            const percentage = total > 0 ? (current / total) * 100 : 0;
+            
+            let progressHtml = `
+                <div class="progress-container">
+                    <div class="progress-header">
+                        <div class="progress-title">🔍 Scanning GH Tokens</div>
+                        <div class="progress-counter">${current}/${total}</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="progress-status">
+                        <span>${status}</span>
+                        ${currentToken ? `<span class="current-token">${currentToken}</span>` : ''}
+                        ${current < total ? '<span class="loading"></span>' : ''}
+                    </div>
+                </div>
+            `;
+
+            // Check if progress container already exists
+            const existingProgress = document.querySelector('.progress-container');
+            if (existingProgress) {
+                existingProgress.outerHTML = progressHtml;
+            } else {
+                // If it's the first progress update, replace all content
+                if (current === 0) {
+                    resultsDiv.innerHTML = progressHtml;
+                } else {
+                    // Insert at the beginning if no progress container exists
+                    resultsDiv.insertAdjacentHTML('afterbegin', progressHtml);
+                }
+            }
+        }
+
+        // Utility functions
+        function showError(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        function showWarning(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<div class="warning">⚠️ ${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('token-input').value = '';
+            document.getElementById('text-scan').value = '';
+        }
+
+        // Theme management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeToggle(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeToggle(newTheme);
+        }
+
+        function updateThemeToggle(theme) {
+            const toggleButton = document.getElementById('theme-toggle');
+            if (theme === 'dark') {
+                toggleButton.innerHTML = '☀️ Light';
+            } else {
+                toggleButton.innerHTML = '🌙 Dark';
+            }
+        }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', initializeTheme);
+
+        // Scope modal functions
+        function showScopeModal(scope) {
+            const modal = document.getElementById('scope-modal');
+            const modalContent = document.getElementById('scope-modal-content');
+            const title = document.getElementById('scope-modal-title');
+            const description = document.getElementById('scope-modal-description');
+            const capabilities = document.getElementById('scope-modal-capabilities');
+            const warning = document.getElementById('scope-modal-warning');
+            
+            const scopeInfo = SCOPE_ANALYSIS[scope];
+            
+            if (scopeInfo) {
+                // Set risk class for styling
+                modalContent.className = `scope-modal-content risk-${scopeInfo.risk}`;
+                
+                // Set title with risk indicator
+                const riskEmoji = scopeInfo.risk === 'high' ? '🔴' : scopeInfo.risk === 'medium' ? '🟡' : '🟢';
+                const riskText = scopeInfo.risk.toUpperCase();
+                title.innerHTML = `${riskEmoji} ${scope} <span style="font-size: 14px; opacity: 0.7;">(${riskText} RISK)</span>`;
+                
+                // Set description
+                description.textContent = scopeInfo.description;
+                
+                // Set capabilities
+                capabilities.innerHTML = `
+                    <h4>What this scope allows:</h4>
+                    <ul>
+                        ${scopeInfo.capabilities.map(cap => `<li>${cap}</li>`).join('')}
+                    </ul>
+                `;
+                
+                // Show warning for dangerous scopes
+                if (scopeInfo.risk === 'high' && (scope === 'delete_repo' || scope === 'delete:packages')) {
+                    warning.style.display = 'block';
+                    warning.innerHTML = `
+                        <div class="blocked-operation-warning">
+                            <span style="font-size: 20px;">🚫</span>
+                            <div class="blocked-operation-text">
+                                <strong>Destructive Operations Blocked:</strong> This scope allows permanent deletion of data. 
+                                All destructive operations are blocked by this tool for safety.
+                            </div>
+                        </div>
+                    `;
+                } else if (scopeInfo.risk === 'high') {
+                    warning.style.display = 'block';
+                    warning.innerHTML = `
+                        <div class="blocked-operation-warning">
+                            <span style="font-size: 20px;">⚠️</span>
+                            <div class="blocked-operation-text">
+                                <strong>High Risk Scope:</strong> This permission grants significant access that could be dangerous if the token is compromised. 
+                                Use with extreme caution and consider using more restrictive scopes if possible.
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    warning.style.display = 'none';
+                }
+                
+            } else {
+                // Unknown scope
+                modalContent.className = 'scope-modal-content';
+                title.innerHTML = `⚪ ${scope} <span style="font-size: 14px; opacity: 0.7;">(UNKNOWN SCOPE)</span>`;
+                description.textContent = 'This scope is not recognized in our database. It may be a new or deprecated scope.';
+                capabilities.innerHTML = `
+                    <h4>Unknown Capabilities</h4>
+                    <p style="color: var(--text-secondary); font-style: italic;">
+                        We don't have information about this scope's capabilities. Please refer to GitHub's official documentation 
+                        or consider this scope potentially risky until verified.
+                    </p>
+                `;
+                warning.style.display = 'block';
+                warning.innerHTML = `
+                    <div class="blocked-operation-warning">
+                        <span style="font-size: 20px;">❓</span>
+                        <div class="blocked-operation-text">
+                            <strong>Unknown Scope:</strong> This scope is not in our risk assessment database. 
+                            Exercise caution and verify its capabilities before use.
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeScopeModal() {
+            document.getElementById('scope-modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('scope-modal');
+            if (event.target === modal) {
+                closeScopeModal();
+            }
+        }
+
+        // Handle Enter key in token input
+        document.getElementById('token-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeToken();
+            }
+        });
+    </script>
+</body>
+</html>

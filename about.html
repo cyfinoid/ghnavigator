@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About GH Navigator - Cyfinoid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sen:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Cyfinoid Brand Colors - Light Mode */
+            --bg-primary: #fafafa;
+            --bg-secondary: #121212;
+            --text-primary: #1e1e1e;
+            --text-secondary: #8a8f98;
+            --text-accent: #50c878;
+            --color-yellow: #fdcb52;
+            --color-red: #d63c53;
+            --color-blue: #466fe0;
+            --color-green: #7fd1b9;
+            --color-dirty-yellow: #b6a189;
+            
+            /* Component Colors - Light Mode */
+            --card-bg: #ffffff;
+            --border-color: #e1e5e9;
+            --input-bg: #ffffff;
+            --button-primary: linear-gradient(135deg, #50c878 0%, #7fd1b9 100%);
+            --button-secondary: linear-gradient(135deg, #466fe0 0%, #364fc7 100%);
+            --button-tertiary: linear-gradient(135deg, #8a8f98 0%, #6c757d 100%);
+            --success-bg: #d4f4dd;
+            --success-text: #0d5016;
+            --error-bg: #fde8eb;
+            --error-text: #721c24;
+            --warning-bg: #fff8e1;
+            --warning-text: #8b5a00;
+            --progress-bg: #f8f9fa;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --hover-bg: #f5f5f5;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode Colors */
+            --bg-primary: #121212;
+            --bg-secondary: #fafafa;
+            --text-primary: #50c878;
+            --text-secondary: #8a8f98;
+            --text-accent: #7fd1b9;
+            
+            /* Component Colors - Dark Mode */
+            --card-bg: #1e1e1e;
+            --border-color: #333333;
+            --input-bg: #2a2a2a;
+            --button-primary: linear-gradient(135deg, #50c878 0%, #7fd1b9 100%);
+            --button-secondary: linear-gradient(135deg, #466fe0 0%, #364fc7 100%);
+            --button-tertiary: linear-gradient(135deg, #8a8f98 0%, #6c757d 100%);
+            --success-bg: #1a3d1f;
+            --success-text: #7fd1b9;
+            --error-bg: #3d1a1f;
+            --error-text: #ff8a9b;
+            --warning-bg: #3d3a1a;
+            --warning-text: #fdcb52;
+            --progress-bg: #2a2a2a;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --hover-bg: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 40px 30px;
+            text-align: center;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--button-tertiary);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: var(--text-accent);
+        }
+
+        .header .subtitle {
+            font-size: 24px;
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .nav-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            background: var(--button-primary);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(80, 200, 120, 0.3);
+        }
+
+        .nav-link.secondary {
+            background: var(--button-secondary);
+        }
+
+        .nav-link.secondary:hover {
+            box-shadow: 0 4px 16px rgba(70, 111, 224, 0.3);
+        }
+
+        .content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+        }
+
+        .content h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-accent);
+            margin-bottom: 24px;
+        }
+
+        .content h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 32px 0 16px 0;
+        }
+
+        .content p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .content ul {
+            margin-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        .content li {
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .highlight-box {
+            background: var(--progress-bg);
+            border-left: 4px solid var(--text-accent);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 8px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .feature-card {
+            background: var(--progress-bg);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-card h4 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-accent);
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+
+        .code-block {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .footer {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--text-accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--color-blue);
+            text-decoration: underline;
+        }
+
+        .footer-copyright {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .header .subtitle {
+                font-size: 20px;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            .content h2 {
+                font-size: 28px;
+            }
+
+            .content h3 {
+                font-size: 20px;
+            }
+
+            .nav-links {
+                gap: 12px;
+            }
+
+            .nav-link {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">
+                🌙 Dark
+            </button>
+            <h1>🗂️ About GH Navigator</h1>
+            <div class="subtitle">Professional GitHub Repository Browser & Token Analyzer</div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="ghcreds.html" class="nav-link secondary">🔍 Bulk Token Checks</a>
+            </div>
+        </header>
+
+        <main class="content">
+            <h2>🎯 Project Overview</h2>
+            <p>GHNavigator is a comprehensive, client-side web application designed for security professionals, developers, and researchers who need to efficiently browse GitHub repositories and analyze personal access tokens (PATs). Built with modern web technologies and following Cyfinoid's professional design standards, this tool provides a secure, user-friendly interface for GitHub reconnaissance and repository exploration.</p>
+
+            <div class="highlight-box">
+                <strong>Key Premise:</strong> Provide a professional-grade, browser-based GitHub exploration tool that prioritizes security, usability, and comprehensive functionality without requiring server-side infrastructure.
+            </div>
+
+            <h3>🏗️ Core Components</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🗂️ Repository Browser</h4>
+                    <p>Navigate through GitHub repositories with an intuitive file browser interface, complete with organization grouping, breadcrumb navigation, and real-time file viewing. Includes API rate limit monitoring and professional UI with dark/light mode support.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔍 Token Analyzer</h4>
+                    <p>Comprehensive GitHub token analysis tool inspired by gimmePATz, providing detailed token validation, scope analysis, repository enumeration, and bulk token processing capabilities through a professional web interface.</p>
+                </div>
+            </div>
+
+            <h3>🔧 Technical Features</h3>
+            <ul>
+                <li><strong>Client-Side Architecture:</strong> No server required - runs entirely in the browser</li>
+                <li><strong>Security-First Design:</strong> Tokens stored only in memory, no persistent storage</li>
+                <li><strong>GitHub API Integration:</strong> Direct integration with GitHub's REST API v3</li>
+                <li><strong>Multi-Token Support:</strong> Bulk token analysis and validation capabilities</li>
+                <li><strong>Responsive Design:</strong> Works seamlessly on desktop, tablet, and mobile devices</li>
+                <li><strong>Theme Support:</strong> Professional light and dark themes with smooth transitions</li>
+                <li><strong>Error Handling:</strong> Graceful degradation and comprehensive error management</li>
+                <li><strong>Rate Limit Awareness:</strong> Smart API usage with real-time monitoring</li>
+            </ul>
+
+            <h3>🎯 Use Cases</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Security Professionals</h4>
+                    <p>Assess GitHub token privileges, enumerate accessible repositories, and understand attack surfaces during security assessments.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Developers & DevOps</h4>
+                    <p>Browse repositories efficiently, analyze token scopes, and manage access to organizational resources.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Researchers</h4>
+                    <p>Investigate repository structures, analyze access patterns, and understand GitHub API capabilities.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Bug Bounty Hunters</h4>
+                    <p>Quickly assess discovered tokens, enumerate accessible resources, and understand potential impact.</p>
+                </div>
+            </div>
+
+            <h3>🔗 Inspiration & Development</h3>
+            <p>GHNavigator represents a comprehensive approach to GitHub repository exploration and token analysis, combining multiple tools and methodologies into a unified, professional interface. The development process drew from various sources and community tools to create a robust security-focused application.</p>
+
+            <div class="highlight-box">
+                <strong>Design Philosophy:</strong> Create a professional-grade, browser-based GitHub exploration tool that prioritizes security, usability, and comprehensive functionality without requiring server-side infrastructure or complex setup procedures.
+            </div>
+
+            <h3>🛠️ Technology Stack</h3>
+            <ul>
+                <li><strong>Frontend:</strong> Pure HTML5, CSS3, and vanilla JavaScript</li>
+                <li><strong>Styling:</strong> CSS Custom Properties with Cyfinoid brand guidelines</li>
+                <li><strong>Typography:</strong> Sen font family for professional appearance</li>
+                <li><strong>API Integration:</strong> GitHub REST API v3 with Fetch API</li>
+                <li><strong>Security:</strong> Client-side only, no data persistence</li>
+                <li><strong>Compatibility:</strong> Modern browsers with ES6+ support</li>
+            </ul>
+
+            <h3>🚀 Getting Started</h3>
+            <p>To use GHNavigator, simply:</p>
+            <ol>
+                <li>Open <code>index.html</code> in your web browser</li>
+                <li>Enter your GitHub Personal Access Token</li>
+                <li>Click "Connect" to authenticate and load your repositories</li>
+                <li>Browse repositories, view files, and analyze your GitHub access</li>
+                <li>Use "Bulk Checks" for comprehensive token analysis</li>
+            </ol>
+
+            <div class="code-block">
+# Clone the repository
+git clone https://github.com/cyfinoid/ghnavigator.git
+
+# Open in browser
+open index.html
+            </div>
+
+            <h3>🔐 Security Considerations</h3>
+            <p>GHNavigator is designed with security as a primary concern:</p>
+            <ul>
+                <li><strong>No Server Dependency:</strong> Eliminates server-side attack vectors</li>
+                <li><strong>Memory-Only Token Storage:</strong> Tokens never persist beyond the session</li>
+                <li><strong>Direct GitHub API:</strong> No intermediary services or data collection</li>
+                <li><strong>Client-Side Processing:</strong> All analysis happens locally in your browser</li>
+                <li><strong>No Tracking:</strong> No analytics, cookies, or user tracking</li>
+            </ul>
+
+            <h3>🎓 Educational Value</h3>
+            <p>This project serves as an excellent educational resource for understanding:</p>
+            <ul>
+                <li>GitHub API integration and best practices</li>
+                <li>Client-side web application development</li>
+                <li>Security-conscious application design</li>
+                <li>Professional UI/UX implementation</li>
+                <li>Token-based authentication systems</li>
+                <li>Rate limiting and API management</li>
+            </ul>
+
+            <h3>📚 References</h3>
+            <p>The development of GHNavigator was influenced by several key resources and community tools that shaped its functionality and approach:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>gimmePATz by @6mile</h4>
+                    <p>The inspiration for our bulk token validator came directly from <strong>gimmePATz</strong>, a powerful command-line Personal Access Token reconnaissance tool. This tool demonstrated the importance of comprehensive token analysis for security professionals, providing detailed insights into token capabilities, repository access, and organizational memberships.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>GitHub REST API Documentation</h4>
+                    <p>Comprehensive integration with GitHub's official REST API v3, following best practices for authentication, rate limiting, and data retrieval to ensure reliable and efficient operation.</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>gimmePATz Integration:</strong> Our bulk token analyzer component (ghcreds.html) provides a web-based interface that mirrors many of gimmePATz's core capabilities, making token analysis more accessible through a professional web interface while maintaining the depth and accuracy of the original command-line tool. We extend our gratitude to @6mile for creating such an invaluable resource for the security community.
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-links">
+                <a href="https://cyfinoid.com" class="footer-link" target="_blank" rel="noopener noreferrer">Cyfinoid Research</a>
+                <a href="https://github.com/cyfinoid/ghnavigator" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+                <a href="https://cyfinoid.com/trainings/#upcoming-trainings" class="footer-link" target="_blank" rel="noopener noreferrer">Training Programs</a>
+                <a href="https://cyfinoid.com/opensource-by-cyfinoid/" class="footer-link" target="_blank" rel="noopener noreferrer">Open Source Projects</a>
+            </div>
+            <div class="footer-copyright">
+                © 2025 Cyfinoid Research • Built with ❤️ for the security community
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Theme management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('ghnavigator-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeToggle(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('ghnavigator-theme', newTheme);
+            updateThemeToggle(newTheme);
+        }
+
+        function updateThemeToggle(theme) {
+            const toggleButton = document.getElementById('theme-toggle');
+            if (theme === 'dark') {
+                toggleButton.innerHTML = '☀️ Light';
+            } else {
+                toggleButton.innerHTML = '🌙 Dark';
+            }
+        }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', initializeTheme);
+    </script>
+</body>
+</html>

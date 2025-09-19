@@ -1,0 +1,74 @@
+name: Deploy to GitHub Pages
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Create deployment directory
+      run: |
+        mkdir -p deploy
+        
+    - name: Copy web files
+      run: |
+        # Copy HTML files
+        cp index.html deploy/
+        cp ghcreds.html deploy/
+        cp about.html deploy/
+        
+        # Copy documentation
+        cp README.md deploy/
+        
+        # Copy any additional assets if they exist
+        cp *.css deploy/ 2>/dev/null || echo "No CSS files found"
+        cp *.js deploy/ 2>/dev/null || echo "No separate JS files found"
+        
+        # Verify required files
+        echo "✅ Verifying deployment files..."
+        
+        if [ ! -f deploy/index.html ]; then
+          echo "❌ Error: index.html not found"
+          exit 1
+        fi
+        
+        if [ ! -f deploy/ghcreds.html ]; then
+          echo "❌ Error: ghcreds.html not found"
+          exit 1
+        fi
+        
+        if [ ! -f deploy/about.html ]; then
+          echo "❌ Error: about.html not found"
+          exit 1
+        fi
+        
+        echo "✅ All required files present"
+        echo "📦 Files to deploy:"
+        ls -la deploy/
+        
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: './deploy'
+        
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
