@@ -37,7 +37,12 @@ A client-side GitHub token analyzer and repository browser. No server required, 
 
 ## Print Reports
 
-Token Analyzer generates professional PDF reports via browser print functionality with proper headers, footers, and formatting.
+Token Analyzer generates  PDF reports via browser print functionality with proper headers, footers, and formatting.
+
+
+## 🤖 AI-Assisted Development
+
+This project was developed with the assistance of AI tools, most notably Cursor IDE. These tools helped accelerate development and improve velocity. All AI-generated code has been carefully reviewed and validated through human inspection to ensure it aligns with the project’s intended functionality and quality standards.
 
 ## License
 

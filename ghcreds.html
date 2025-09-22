@@ -1405,7 +1405,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔍 GH Token Analyzer</h1>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <h1>🔍 GH Token Analyzer</h1>
+                <div style="display: flex; gap: 12px;">
+                    <a href="index.html" style="color: var(--text-accent); text-decoration: none; font-weight: 600; font-size: 14px; padding: 6px 12px; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='var(--progress-bg)'" onmouseout="this.style.background='transparent'">🏠 Home</a>
+                    <a href="about.html" style="color: var(--text-accent); text-decoration: none; font-weight: 600; font-size: 14px; padding: 6px 12px; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='var(--progress-bg)'" onmouseout="this.style.background='transparent'">ℹ️ About</a>
+                </div>
+            </div>
             <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">
                 🌙 Dark
             </button>
@@ -1414,6 +1420,24 @@
         <div class="content-wrapper">
             <div class="main-content">
                 <div class="input-section">
+                    <div style="background: var(--success-bg); border: 1px solid var(--text-accent); border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: center;">
+                        <div style="font-size: 14px; color: var(--success-text); font-weight: 600; margin-bottom: 8px;">
+                            💡 Inspired by the excellent work of @6mile
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">
+                            This tool is inspired by <a href="https://github.com/6mile/gimmepatz" target="_blank" rel="noopener noreferrer" style="color: var(--text-accent); text-decoration: none; font-weight: 600;">gimmepatz</a> - a comprehensive PAT reconnaissance tool for security professionals
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--warning-bg); border: 1px solid var(--color-yellow); border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: center;">
+                        <div style="font-size: 14px; color: var(--warning-text); font-weight: 600; margin-bottom: 8px;">
+                            🔒 Privacy & Security Notice
+                        </div>
+                        <div style="font-size: 13px; color: var(--warning-text);">
+                            <strong>No tokens are stored or transmitted to any server.</strong> All analysis happens entirely in your browser (client-side). 
+                            Your tokens never leave your device and are not logged or saved anywhere.
+                        </div>
+                    </div>
                     <div class="input-group">
                         <label for="token-input">GitHub Personal Access Token</label>
                         <div class="input-with-button">
@@ -1444,6 +1468,7 @@
             <div class="footer-links">
                 <a href="https://cyfinoid.com" class="footer-link" target="_blank" rel="noopener noreferrer">Cyfinoid Research</a>
                 <a href="https://github.com/cyfinoid/ghnavigator" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+                <a href="https://github.com/6mile/gimmepatz" class="footer-link" target="_blank" rel="noopener noreferrer">Inspired by gimmepatz</a>
                 <a href="https://cyfinoid.com/trainings/#upcoming-trainings" class="footer-link" target="_blank" rel="noopener noreferrer">Training Programs</a>
                 <a href="https://cyfinoid.com/opensource-by-cyfinoid/" class="footer-link" target="_blank" rel="noopener noreferrer">Open Source Projects</a>
             </div>
