@@ -52,6 +52,14 @@ MIT License - see [LICENSE.md](LICENSE.md) for details.
 
 Bulk token validation inspired by [gimmePATz](https://github.com/cyfinoid/gimmepatz).
 
+
+## 💬 Community & Discussion
+Join our Discord server for discussions, questions, and collaboration:
+
+[Join our Discord Server](https://discord.gg/7trkcUFrgR)
+
+Connect with other security researchers, share your findings, and get help with KeyChecker usage and development.
+
 ---
 
 **Cyfinoid Research** | [Website](https://cyfinoid.com) | [GitHub](https://github.com/cyfinoid) | [Trainings](https://cyfinoid.com/trainings)
