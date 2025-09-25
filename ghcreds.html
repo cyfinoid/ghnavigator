@@ -783,6 +783,42 @@
             font-weight: 400;
         }
 
+        .security-notice {
+            background: var(--success-bg);
+            color: var(--success-text);
+            padding: 12px 20px;
+            border-left: 4px solid var(--text-accent);
+            margin: 0;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .security-notice-icon {
+            font-size: 16px;
+        }
+
+        .github-link {
+            color: var(--text-accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .github-link:hover {
+            background: var(--progress-bg);
+            color: var(--color-blue);
+        }
+
         @media (max-width: 768px) {
             .content-wrapper {
                 margin: 90px 10px 100px 10px;
@@ -1407,6 +1443,13 @@
 </head>
 <body>
     <div class="container">
+        <div class="security-notice">
+            <span class="security-notice-icon">🔒</span>
+            <span>All processing happens in your browser - no credentials are stored or shared with any server. 
+            <a href="https://github.com/cyfinoid/ghnavigator" class="github-link" target="_blank" rel="noopener noreferrer">
+                <span>🔍</span> View Source Code
+            </a></span>
+        </div>
         <div class="header">
             <div style="display: flex; align-items: center; gap: 20px;">
                 <h1>🔍 GH Token Analyzer</h1>
