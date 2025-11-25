@@ -2342,31 +2342,33 @@ function showSingleTokenProgress(step, status, tokenPreview) {
     const totalSteps = 9;
     const percentage = (step / totalSteps) * 100;
     
-    let progressHtml = `
-        <div class="progress-container">
-            <div class="progress-header">
-                <div class="progress-title">🔍 Analyzing GH Token</div>
-                <div class="progress-counter">Step ${step}/${totalSteps}</div>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${percentage}%"></div>
-            </div>
-            <div class="progress-status">
-                <span>${status}</span>
-                <span class="current-token">${tokenPreview}</span>
-                ${step < totalSteps ? '<span class="loading"></span>' : ''}
-            </div>
+    // Escape user-controlled content to prevent XSS
+    const safeStatus = escapeHtml(status);
+    const safeTokenPreview = escapeHtml(tokenPreview);
+    
+    // Check if progress container already exists
+    let container = document.querySelector('.progress-container');
+    
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'progress-container';
+        document.body.appendChild(container);
+    }
+    
+    container.innerHTML = `
+        <div class="progress-header">
+            <div class="progress-title">🔍 Analyzing GH Token</div>
+            <div class="progress-counter">Step ${step}/${totalSteps}</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: ${percentage}%"></div>
+        </div>
+        <div class="progress-status">
+            <span>${safeStatus}</span>
+            <span class="current-token">${safeTokenPreview}</span>
+            ${step < totalSteps ? '<span class="loading"></span>' : ''}
         </div>
     `;
-
-    // Check if progress container already exists
-    const existingProgress = document.querySelector('.progress-container');
-    if (existingProgress) {
-        existingProgress.outerHTML = progressHtml;
-    } else {
-        // Create progress at the top of the page (fixed position)
-        document.body.insertAdjacentHTML('beforeend', progressHtml);
-    }
 }
 
 // Hide progress bar
@@ -2382,34 +2384,42 @@ function showProgress(current, total, status, currentToken = '') {
     const resultsDiv = document.getElementById('results');
     const percentage = total > 0 ? (current / total) * 100 : 0;
     
-    let progressHtml = `
-        <div class="progress-container">
-            <div class="progress-header">
-                <div class="progress-title">🔍 Scanning GH Tokens</div>
-                <div class="progress-counter">${current}/${total}</div>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${percentage}%"></div>
-            </div>
-            <div class="progress-status">
-                <span>${status}</span>
-                ${currentToken ? `<span class="current-token">${currentToken}</span>` : ''}
-                ${current < total ? '<span class="loading"></span>' : ''}
-            </div>
+    // Escape user-controlled content to prevent XSS
+    const safeStatus = escapeHtml(status);
+    const safeToken = currentToken ? escapeHtml(currentToken) : '';
+    
+    const progressContent = `
+        <div class="progress-header">
+            <div class="progress-title">🔍 Scanning GH Tokens</div>
+            <div class="progress-counter">${current}/${total}</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: ${percentage}%"></div>
+        </div>
+        <div class="progress-status">
+            <span>${safeStatus}</span>
+            ${safeToken ? `<span class="current-token">${safeToken}</span>` : ''}
+            ${current < total ? '<span class="loading"></span>' : ''}
         </div>
     `;
 
     // Check if progress container already exists
-    const existingProgress = document.querySelector('.progress-container');
-    if (existingProgress) {
-        existingProgress.outerHTML = progressHtml;
+    let container = document.querySelector('.progress-container');
+    
+    if (container) {
+        container.innerHTML = progressContent;
     } else {
+        container = document.createElement('div');
+        container.className = 'progress-container';
+        container.innerHTML = progressContent;
+        
         // If it's the first progress update, replace all content
         if (current === 0 && resultsDiv) {
-            resultsDiv.innerHTML = progressHtml;
+            resultsDiv.innerHTML = '';
+            resultsDiv.appendChild(container);
         } else if (resultsDiv) {
             // Insert at the beginning if no progress container exists
-            resultsDiv.insertAdjacentHTML('afterbegin', progressHtml);
+            resultsDiv.insertBefore(container, resultsDiv.firstChild);
         }
     }
 }
