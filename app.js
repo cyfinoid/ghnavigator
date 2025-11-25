@@ -1864,6 +1864,7 @@ async function analyzeToken() {
 }
 
 // Quick check tokens (validate only, no full analysis)
+// Processes tokens in parallel batches for speed
 async function quickCheckTokens() {
     const textInput = document.getElementById('text-scan');
     const text = textInput.value.trim();
@@ -1881,8 +1882,9 @@ async function quickCheckTokens() {
     }
 
     const resultsDiv = document.getElementById('results');
+    const PARALLEL_LIMIT = 5; // Number of concurrent requests
     
-    // Initialize the results container immediately
+    // Initialize the results container with separate sections for valid/invalid
     resultsDiv.innerHTML = `
         <div class="quick-check-results">
             <div class="quick-check-header">
@@ -1893,32 +1895,101 @@ async function quickCheckTokens() {
                     <span class="stat-pending" id="quick-check-pending">⏳ ${tokens.length} Pending</span>
                 </div>
             </div>
-            <ul class="quick-check-list" id="quick-check-list"></ul>
+            
+            <div class="quick-check-section valid-section" id="valid-section">
+                <div class="quick-check-section-header valid">
+                    <span>✅ Valid Tokens</span>
+                    <span class="section-count" id="valid-section-count">0</span>
+                </div>
+                <ul class="quick-check-list" id="valid-list"></ul>
+                <div class="quick-check-empty" id="valid-empty">No valid tokens found yet...</div>
+            </div>
+            
+            <div class="quick-check-section invalid-section" id="invalid-section">
+                <div class="quick-check-section-header invalid">
+                    <span>❌ Invalid Tokens</span>
+                    <span class="section-count" id="invalid-section-count">0</span>
+                </div>
+                <ul class="quick-check-list" id="invalid-list"></ul>
+                <div class="quick-check-empty" id="invalid-empty">No invalid tokens found yet...</div>
+            </div>
+            
+            <div class="quick-check-section pending-section" id="pending-section">
+                <div class="quick-check-section-header pending">
+                    <span>⏳ Checking</span>
+                    <span class="section-count" id="pending-section-count">${tokens.length}</span>
+                </div>
+                <ul class="quick-check-list" id="pending-list"></ul>
+            </div>
         </div>
     `;
     
-    const listElement = document.getElementById('quick-check-list');
+    const validList = document.getElementById('valid-list');
+    const invalidList = document.getElementById('invalid-list');
+    const pendingList = document.getElementById('pending-list');
     let validCount = 0;
     let invalidCount = 0;
+    let completedCount = 0;
     
-    for (let i = 0; i < tokens.length; i++) {
-        const token = tokens[i];
+    // Create all placeholder items in pending section
+    tokens.forEach((token, i) => {
         const tokenPreview = token.substring(0, 10) + '...';
         const tokenType = analyzer.isFineGrainedToken(token) ? 'Fine-grained' : 'Classic';
-        
-        // Add a "checking" placeholder for this token
         const itemId = `quick-check-item-${i}`;
-        listElement.innerHTML += `
-            <li class="quick-check-item checking" id="${itemId}">
+        
+        pendingList.innerHTML += `
+            <li class="quick-check-item checking" id="${itemId}" data-token="${token}">
                 <div class="quick-check-token-info">
                     <span class="quick-check-status">⏳</span>
                     <span class="quick-check-token">${tokenPreview}</span>
                     <span class="quick-check-type">${tokenType}</span>
-                    <span class="quick-check-checking">Checking...</span>
+                    <span class="quick-check-checking">Queued...</span>
                 </div>
                 <div class="quick-check-actions"></div>
             </li>
         `;
+    });
+    
+    // Function to update section visibility and counts
+    function updateSections() {
+        const pendingCount = tokens.length - completedCount;
+        
+        // Update header stats
+        document.getElementById('quick-check-valid').textContent = `✅ ${validCount} Valid`;
+        document.getElementById('quick-check-invalid').textContent = `❌ ${invalidCount} Invalid`;
+        const pendingElement = document.getElementById('quick-check-pending');
+        if (pendingCount > 0) {
+            pendingElement.textContent = `⏳ ${pendingCount} Pending`;
+        } else {
+            pendingElement.textContent = '✓ Complete';
+            pendingElement.className = 'stat-complete';
+        }
+        
+        // Update section counts
+        document.getElementById('valid-section-count').textContent = validCount;
+        document.getElementById('invalid-section-count').textContent = invalidCount;
+        document.getElementById('pending-section-count').textContent = pendingCount;
+        
+        // Toggle empty messages
+        document.getElementById('valid-empty').style.display = validCount > 0 ? 'none' : 'block';
+        document.getElementById('invalid-empty').style.display = invalidCount > 0 ? 'none' : 'block';
+        
+        // Hide pending section when complete
+        document.getElementById('pending-section').style.display = pendingCount > 0 ? 'block' : 'none';
+    }
+    
+    // Function to check a single token and update UI
+    async function checkToken(token, index) {
+        const tokenPreview = token.substring(0, 10) + '...';
+        const tokenType = analyzer.isFineGrainedToken(token) ? 'Fine-grained' : 'Classic';
+        const itemId = `quick-check-item-${index}`;
+        const itemElement = document.getElementById(itemId);
+        
+        // Update to "Checking" status
+        if (itemElement) {
+            const checkingSpan = itemElement.querySelector('.quick-check-checking');
+            if (checkingSpan) checkingSpan.textContent = 'Checking...';
+        }
         
         let result;
         try {
@@ -1942,15 +2013,18 @@ async function quickCheckTokens() {
             };
         }
         
-        // Update the item with the result
-        const itemElement = document.getElementById(itemId);
+        // Remove from pending list
         if (itemElement) {
-            const statusIcon = result.valid ? '✅' : '❌';
-            const itemClass = result.valid ? 'valid' : 'invalid';
-            const userInfo = result.valid && result.user ? `@${result.user.login}` : '';
-            
-            itemElement.className = `quick-check-item ${itemClass}`;
-            itemElement.innerHTML = `
+            itemElement.remove();
+        }
+        
+        // Create new item HTML
+        const statusIcon = result.valid ? '✅' : '❌';
+        const itemClass = result.valid ? 'valid' : 'invalid';
+        const userInfo = result.valid && result.user ? `@${result.user.login}` : '';
+        
+        const newItemHtml = `
+            <li class="quick-check-item ${itemClass}">
                 <div class="quick-check-token-info">
                     <span class="quick-check-status">${statusIcon}</span>
                     <span class="quick-check-token">${result.tokenPreview}</span>
@@ -1961,31 +2035,38 @@ async function quickCheckTokens() {
                 <div class="quick-check-actions">
                     ${result.valid ? `<button class="probe-button" onclick="probeToken('${result.token}')">🔬 Full Analysis</button>` : ''}
                 </div>
-            `;
-        }
+            </li>
+        `;
         
-        // Update counts
+        // Add to appropriate section
         if (result.valid) {
+            validList.insertAdjacentHTML('beforeend', newItemHtml);
             validCount++;
         } else {
+            invalidList.insertAdjacentHTML('beforeend', newItemHtml);
             invalidCount++;
         }
-        const pendingCount = tokens.length - (i + 1);
+        completedCount++;
         
-        // Update stats display
-        document.getElementById('quick-check-valid').textContent = `✅ ${validCount} Valid`;
-        document.getElementById('quick-check-invalid').textContent = `❌ ${invalidCount} Invalid`;
-        const pendingElement = document.getElementById('quick-check-pending');
-        if (pendingCount > 0) {
-            pendingElement.textContent = `⏳ ${pendingCount} Pending`;
-        } else {
-            pendingElement.textContent = '✓ Complete';
-            pendingElement.className = 'stat-complete';
-        }
+        // Update section visibility and counts
+        updateSections();
         
-        // Small delay to avoid rate limiting
-        if (i < tokens.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 300));
+        return result;
+    }
+    
+    // Process tokens in parallel batches
+    for (let i = 0; i < tokens.length; i += PARALLEL_LIMIT) {
+        const batch = tokens.slice(i, i + PARALLEL_LIMIT);
+        const batchPromises = batch.map((token, batchIndex) => 
+            checkToken(token, i + batchIndex)
+        );
+        
+        // Wait for all tokens in this batch to complete
+        await Promise.all(batchPromises);
+        
+        // Small delay between batches to be nice to the API
+        if (i + PARALLEL_LIMIT < tokens.length) {
+            await new Promise(resolve => setTimeout(resolve, 100));
         }
     }
 }

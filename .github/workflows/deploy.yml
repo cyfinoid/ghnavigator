@@ -32,31 +32,33 @@ jobs:
         cp ghcreds.html deploy/
         cp about.html deploy/
         
+        # Copy required CSS and JS files
+        cp style.css deploy/
+        cp app.js deploy/
+        
         # Copy documentation
         cp README.md deploy/
-        
-        # Copy any additional assets if they exist
-        cp *.css deploy/ 2>/dev/null || echo "No CSS files found"
-        cp *.js deploy/ 2>/dev/null || echo "No separate JS files found"
         
         # Verify required files
         echo "✅ Verifying deployment files..."
         
-        if [ ! -f deploy/index.html ]; then
-          echo "❌ Error: index.html not found"
+        MISSING_FILES=0
+        
+        for file in index.html ghcreds.html about.html style.css app.js; do
+          if [ ! -f deploy/$file ]; then
+            echo "❌ Error: $file not found"
+            MISSING_FILES=1
+          else
+            echo "✓ $file"
+          fi
+        done
+        
+        if [ $MISSING_FILES -eq 1 ]; then
+          echo "❌ Deployment failed: missing required files"
           exit 1
         fi
         
-        if [ ! -f deploy/ghcreds.html ]; then
-          echo "❌ Error: ghcreds.html not found"
-          exit 1
-        fi
-        
-        if [ ! -f deploy/about.html ]; then
-          echo "❌ Error: about.html not found"
-          exit 1
-        fi
-        
+        echo ""
         echo "✅ All required files present"
         echo "📦 Files to deploy:"
         ls -la deploy/

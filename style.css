@@ -1884,6 +1884,64 @@ label {
     font-weight: 600;
 }
 
+/* Quick Check Sections */
+.quick-check-section {
+    margin-top: 0;
+}
+
+.quick-check-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--progress-bg);
+}
+
+.quick-check-section-header.valid {
+    color: var(--text-accent);
+    border-left: 4px solid var(--text-accent);
+}
+
+.quick-check-section-header.invalid {
+    color: var(--color-red);
+    border-left: 4px solid var(--color-red);
+}
+
+.quick-check-section-header.pending {
+    color: var(--color-yellow);
+    border-left: 4px solid var(--color-yellow);
+}
+
+.quick-check-section-header .section-count {
+    background: var(--card-bg);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+}
+
+.quick-check-empty {
+    padding: 16px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-style: italic;
+}
+
+.valid-section .quick-check-list {
+    background: rgba(80, 200, 120, 0.03);
+}
+
+.invalid-section .quick-check-list {
+    background: rgba(214, 60, 83, 0.03);
+}
+
+.pending-section .quick-check-list {
+    background: rgba(253, 203, 82, 0.03);
+}
+
 /* ========================================
    Responsive Styles
    ======================================== */
