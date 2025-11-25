@@ -4,14 +4,20 @@ All notable changes to GH Navigator will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [0.2.0] - 2025-01-25
 
 ### Added
-- **Repository Search Filter** - Fuzzy search box in sidebar to filter repositories as you type
+- **Quick Check Mode** - Rapidly validate multiple tokens before full analysis
+  - Processes 5 tokens in parallel for faster results
+  - Real-time updates as each token is validated
+  - Separate sections for Valid/Invalid/Pending tokens
+  - One-click "Full Analysis" button for working tokens
+- **Repository Search Filter** - Fuzzy search box in sidebar to filter repositories
   - Appears after repositories are loaded
   - Supports fuzzy matching (e.g., "gnav" matches "ghnavigator")
   - Auto-expands org sections with matching repos
   - Press Escape to clear filter
+- **Cache Busting** - Version query parameter (`?v=0.2`) on CSS and JS files
 - **CHANGELOG.md** - This file to track project changes
 - **AGENTS.md** - AI agent instructions for contributing to the project
 
@@ -23,14 +29,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Extracted all CSS to unified `style.css` file
   - Removed all inline styles from HTML files (moved to CSS classes)
   - Removed all inline JavaScript from HTML files (except third-party analytics)
+- **GitHub Actions Workflow** - Updated deploy.yml to explicitly verify required files
 
 ### Fixed
 - **Bulk Checks Button** - Added `white-space: nowrap` to prevent text wrapping to two lines
+- **XSS Vulnerability** - Fixed DOM text reinterpretation in progress bar functions using `escapeHtml()`
+
+### Security
+- Added input sanitization for user-controlled content in progress displays
+- Using safe DOM methods instead of `insertAdjacentHTML` with user content
 
 ### Removed
 - **Top Security Banner** - Replaced with footer security notice
 
-## [1.0.0] - 2025-01-01
+## [0.1] - 2025-09-23
 
 ### Added
 - **Repository Browser** (`index.html`)
@@ -75,6 +87,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 | Version | Date | Highlights |
 |---------|------|------------|
-| Unreleased | - | Repository filter, unlimited repos, code refactoring |
-| 1.0.0 | 2025-01-01 | Initial release with Repository Browser and Token Analyzer |
+| 0.2.0 | 2025-01-25 | Quick Check mode, repository filter, parallel processing, XSS fix |
+| 0.1.0 | 2025-01-01 | Initial release with Repository Browser and Token Analyzer |
 
