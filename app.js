@@ -2303,28 +2303,267 @@ function displayTokenAnalysis(analysis, tokenNumber = null, targetContainer = nu
             const privateRepos = analysis.repositories.filter(repo => repo.private);
             const publicRepos = analysis.repositories.filter(repo => !repo.private);
             
+            // Check if we have detailed data (variables, config)
+            const hasVariables = analysis.variables && analysis.variables.totalCount > 0;
+            const hasConfig = analysis.configuration && analysis.configuration.totalCount > 0;
+            
             html += `<h3>📁 Accessible Repositories (${analysis.repositories.length} total)</h3>`;
             html += `<p>🔒 Private: ${privateRepos.length} | 🔓 Public: ${publicRepos.length}</p>`;
             
+            if (hasVariables || hasConfig) {
+                html += '<div class="warning">⚠️ Token has access to sensitive repository data - variables, secrets, and security configuration!</div>';
+            }
+            
             html += '<div class="repo-list">';
-            analysis.repositories.slice(0, 20).forEach(repo => {
+            analysis.repositories.forEach(repo => {
                 const repoClass = repo.private ? 'repo-private' : 'repo-public';
                 const repoLabel = repo.private ? 'Private' : 'Public';
+                
+                // Get additional data for this repository
+                const repoVariables = (analysis.variables && analysis.variables.repositories) ? 
+                    (analysis.variables.repositories[repo.full_name] || []) : [];
+                const repoConfig = (analysis.configuration && analysis.configuration.repositories) ? 
+                    (analysis.configuration.repositories[repo.full_name] || null) : null;
+                
+                // Build comprehensive repository information
+                let repoDetails = [];
+                let securityIssues = [];
+                let variablesInfo = '';
+                let configInfo = '';
+                
+                // Basic repository info - permissions
+                if (repo.permissions) {
+                    if (repo.permissions.admin) repoDetails.push('🔑 Admin');
+                    else if (repo.permissions.push) repoDetails.push('✏️ Write');
+                    else if (repo.permissions.pull) repoDetails.push('👁️ Read');
+                }
+                
+                if (repo.archived) repoDetails.push('📦 Archived');
+                if (repo.fork) repoDetails.push('🍴 Fork');
+                
+                // Variables and secrets information
+                if (repoVariables.length > 0) {
+                    const secrets = repoVariables.filter(v => v.type.includes('secret'));
+                    const variables = repoVariables.filter(v => v.type.includes('variable'));
+                    const envItems = repoVariables.filter(v => v.type.includes('environment'));
+                    
+                    repoDetails.push(`🔒 ${secrets.length} secrets`);
+                    repoDetails.push(`📋 ${variables.length} variables`);
+                    if (envItems.length > 0) repoDetails.push(`🌍 ${envItems.length} env items`);
+                    
+                    variablesInfo = `
+                        <div class="variables-info">
+                            <div class="variables-info-title">Variables & Secrets:</div>
+                            ${repoVariables.map(variable => {
+                                const typeEmoji = variable.type.includes('secret') ? '🔒' : 
+                                                 variable.type.includes('environment') ? '🌍' : '📋';
+                                const envText = variable.environment ? ` (${escapeHtml(variable.environment)})` : '';
+                                const hasValue = variable.value && !variable.type.includes('secret');
+                                const valueDisplay = hasValue ? 
+                                    `: <span class="variable-value">${escapeHtml(variable.value.length > 20 ? variable.value.substring(0, 20) + '...' : variable.value)}</span>` : '';
+                                
+                                return `<div class="variable-item">
+                                    ${typeEmoji} <strong>${escapeHtml(variable.name)}</strong>${envText}${valueDisplay}
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+                
+                // Configuration information
+                if (repoConfig) {
+                    let configSummary = [];
+                    
+                    if (repoConfig.basic) {
+                        if (repoConfig.basic.allow_forking) configSummary.push('🍴 Forking');
+                        if (repoConfig.basic.delete_branch_on_merge) configSummary.push('🗑️ Auto-delete branches');
+                    }
+                    
+                    if (repoConfig.actionsPermissions) {
+                        const actions = repoConfig.actionsPermissions;
+                        if (actions.enabled) {
+                            configSummary.push('⚡ Actions');
+                            if (actions.allowed_actions === 'all') {
+                                securityIssues.push('🔴 All Actions Allowed');
+                            } else if (actions.allowed_actions === 'local_only') {
+                                configSummary.push('🟡 Local Actions Only');
+                            } else {
+                                configSummary.push('🟢 Selected Actions');
+                            }
+                        } else {
+                            configSummary.push('🚫 Actions Disabled');
+                        }
+                    }
+                    
+                    if (repoConfig.workflowPermissions) {
+                        const workflow = repoConfig.workflowPermissions;
+                        if (workflow.default_workflow_permissions === 'write') {
+                            securityIssues.push('🔴 Default Write Permissions');
+                        } else {
+                            configSummary.push('🟢 Read Permissions');
+                        }
+                        if (workflow.can_approve_pull_request_reviews) {
+                            securityIssues.push('🟡 Can Approve PRs');
+                        }
+                    }
+                    
+                    if (configSummary.length > 0) {
+                        repoDetails.push(...configSummary);
+                    }
+                    
+                    if (repoConfig.selectedActions && repoConfig.selectedActions.patterns_allowed && repoConfig.selectedActions.patterns_allowed.length > 0) {
+                        configInfo = `
+                            <div class="config-info">
+                                <div class="config-info-title">Allowed Action Patterns:</div>
+                                ${repoConfig.selectedActions.patterns_allowed.slice(0, 2).map(pattern => 
+                                    `<div class="config-pattern">• ${escapeHtml(pattern)}</div>`
+                                ).join('')}
+                                ${repoConfig.selectedActions.patterns_allowed.length > 2 ? `<div class="config-pattern text-italic">... and ${repoConfig.selectedActions.patterns_allowed.length - 2} more</div>` : ''}
+                            </div>
+                        `;
+                    }
+                }
+                
+                // Create hyperlink for public repositories, plain text for private
                 const repoNameElement = repo.private ? 
-                    `<span class="repo-name-private">${repo.full_name}</span>` :
-                    `<a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="repo-link">${repo.full_name}</a>`;
+                    `<span class="repo-name-private">${escapeHtml(repo.full_name)}</span>` :
+                    `<a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="repo-link">${escapeHtml(repo.full_name)}</a>`;
                 
                 html += `
-                    <div class="repo-item">
-                        ${repoNameElement}
-                        <span class="${repoClass}">${repoLabel}</span>
+                    <div class="repo-item repo-item-detailed">
+                        <div class="repo-item-header">
+                            ${repoNameElement}
+                            <span class="${repoClass}">${repoLabel}</span>
+                        </div>
+                        ${repoDetails.length > 0 ? `<div class="repo-details">${repoDetails.join(' • ')}</div>` : ''}
+                        ${securityIssues.length > 0 ? `<div class="security-issues">${securityIssues.map(issue => `<span class="security-issue-badge">${issue}</span>`).join('')}</div>` : ''}
+                        ${variablesInfo}
+                        ${configInfo}
                     </div>
                 `;
             });
-            if (analysis.repositories.length > 20) {
-                html += `<div class="repo-item more-repos-message">... and ${analysis.repositories.length - 20} more repositories</div>`;
-            }
             html += '</div>';
+        }
+        
+        // Organization Variables & Secrets
+        if (analysis.variables && analysis.variables.organizations) {
+            const orgVarCount = Object.keys(analysis.variables.organizations).length;
+            if (orgVarCount > 0) {
+                html += `<h3>🏢 Organization Variables & Secrets (${orgVarCount} organizations)</h3>`;
+                html += '<div class="warning">⚠️ Token has access to organization-wide variables and secrets!</div>';
+                html += '<div class="repo-list">';
+                
+                Object.entries(analysis.variables.organizations).forEach(([orgName, variables]) => {
+                    const secretCount = variables.filter(v => v.type.includes('secret')).length;
+                    const variableCount = variables.filter(v => v.type.includes('variable')).length;
+                    
+                    html += `
+                        <div class="repo-item repo-item-detailed">
+                            <div class="repo-item-header">
+                                <span class="repo-name-private">${escapeHtml(orgName)}</span>
+                                <span class="repo-private">Variables</span>
+                            </div>
+                            <div class="repo-details">🔒 ${secretCount} secrets • 📋 ${variableCount} variables</div>
+                            <div class="org-variables-section">
+                                ${variables.map(variable => {
+                                    const typeEmoji = variable.type.includes('secret') ? '🔒' : '📋';
+                                    const visibilityText = variable.visibility ? ` (${escapeHtml(variable.visibility)})` : '';
+                                    const hasValue = variable.value && !variable.type.includes('secret');
+                                    const valueDisplay = hasValue ? 
+                                        `: <span class="variable-value">${escapeHtml(variable.value.length > 30 ? variable.value.substring(0, 30) + '...' : variable.value)}</span>` : '';
+                                    
+                                    return `<div class="org-variable-item">
+                                        ${typeEmoji} <strong>${escapeHtml(variable.name)}</strong>${visibilityText}${valueDisplay}
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+        }
+        
+        // Organization Configuration
+        if (analysis.configuration && analysis.configuration.organizations) {
+            const orgConfigCount = Object.keys(analysis.configuration.organizations).length;
+            if (orgConfigCount > 0) {
+                html += `<h3>🏢 Organization Configuration (${orgConfigCount} organizations)</h3>`;
+                html += '<div class="warning">⚠️ Token has access to organization-wide security configuration!</div>';
+                html += '<div class="repo-list">';
+                
+                Object.entries(analysis.configuration.organizations).forEach(([orgName, config]) => {
+                    let configSummary = [];
+                    let securityIssues = [];
+                    
+                    // Analyze Actions permissions
+                    if (config.actionsPermissions) {
+                        const actions = config.actionsPermissions;
+                        if (actions.enabled_repositories === 'all') {
+                            securityIssues.push('🔴 All Repos Enabled');
+                        } else if (actions.enabled_repositories === 'selected') {
+                            configSummary.push('🟡 Selected Repos Only');
+                        } else {
+                            configSummary.push('🚫 Actions Disabled');
+                        }
+                        
+                        if (actions.allowed_actions === 'all') {
+                            securityIssues.push('🔴 All Actions Allowed');
+                        } else if (actions.allowed_actions === 'local_only') {
+                            configSummary.push('🟡 Local Actions Only');
+                        } else {
+                            configSummary.push('🟢 Selected Actions Only');
+                        }
+                    }
+                    
+                    // Analyze workflow permissions
+                    if (config.workflowPermissions) {
+                        const workflow = config.workflowPermissions;
+                        if (workflow.default_workflow_permissions === 'write') {
+                            securityIssues.push('🔴 Default Write Permissions');
+                        } else {
+                            configSummary.push('🟢 Default Read Permissions');
+                        }
+                        if (workflow.can_approve_pull_request_reviews) {
+                            securityIssues.push('🟡 Can Approve PRs');
+                        }
+                    }
+                    
+                    // Repository permissions info
+                    if (config.repositoriesPermissions) {
+                        const repoCount = config.repositoriesPermissions.total_count;
+                        if (repoCount > 0) {
+                            configSummary.push(`📁 ${repoCount} Enabled Repos`);
+                        }
+                    }
+                    
+                    let patternsHtml = '';
+                    if (config.selectedActions && config.selectedActions.patterns_allowed && config.selectedActions.patterns_allowed.length > 0) {
+                        patternsHtml = `
+                            <div class="config-info">
+                                <div class="config-info-title">Allowed Patterns:</div>
+                                ${config.selectedActions.patterns_allowed.slice(0, 3).map(pattern => 
+                                    `<div class="config-pattern">• ${escapeHtml(pattern)}</div>`
+                                ).join('')}
+                                ${config.selectedActions.patterns_allowed.length > 3 ? `<div class="config-pattern text-italic">... and ${config.selectedActions.patterns_allowed.length - 3} more</div>` : ''}
+                            </div>
+                        `;
+                    }
+                    
+                    html += `
+                        <div class="repo-item repo-item-detailed">
+                            <div class="repo-item-header">
+                                <span class="repo-name-private">${escapeHtml(orgName)}</span>
+                                <span class="repo-private">Config</span>
+                            </div>
+                            ${configSummary.length > 0 ? `<div class="repo-details">${configSummary.join(' • ')}</div>` : ''}
+                            ${securityIssues.length > 0 ? `<div class="security-issues">${securityIssues.map(issue => `<span class="security-issue-badge">${issue}</span>`).join('')}</div>` : ''}
+                            ${patternsHtml}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
         }
     }
 

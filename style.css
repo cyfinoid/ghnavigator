@@ -1707,9 +1707,98 @@ label {
 }
 
 /* More repos message */
-.more-repos-message {
-    text-align: center;
+/* ========================================
+   Repository Details (Token Analyzer)
+   ======================================== */
+
+.repo-item-detailed {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
+}
+
+.repo-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.repo-details {
+    font-size: 12px;
     color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.security-issues {
+    margin-bottom: 8px;
+}
+
+.security-issue-badge {
+    font-size: 11px;
+    background: var(--error-bg);
+    color: var(--error-text);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 4px;
+    display: inline-block;
+    margin-bottom: 2px;
+}
+
+.variables-info {
+    margin-top: 8px;
+    padding: 8px;
+    background: var(--warning-bg);
+    border-radius: 4px;
+    border-left: 3px solid var(--color-yellow);
+}
+
+.variables-info-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--warning-text);
+    margin-bottom: 4px;
+}
+
+.variable-item {
+    font-size: 10px;
+    margin: 1px 0;
+    font-family: 'Courier New', monospace;
+}
+
+.variable-value {
+    color: var(--text-accent);
+}
+
+.config-info {
+    margin-top: 6px;
+    padding: 6px;
+    background: var(--progress-bg);
+    border-radius: 4px;
+    border-left: 3px solid var(--text-accent);
+}
+
+.config-info-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.config-pattern {
+    font-size: 9px;
+    font-family: 'Courier New', monospace;
+    color: var(--text-secondary);
+}
+
+.org-variables-section {
+    margin-top: 8px;
+}
+
+.org-variable-item {
+    font-size: 11px;
+    margin: 2px 0;
+    font-family: 'Courier New', monospace;
 }
 
 /* Scope modal risk label */
